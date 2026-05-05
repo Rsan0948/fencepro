@@ -20,6 +20,9 @@ coverage
 # to reference, but never ship to the public repo.
 docs/lane_briefs/
 
+# Per-session Claude Code permission/settings state — local-only.
+.claude/settings.local.json
+
 # Optional local data override — keep regional/branding data out of source.
 # See docs/architecture.md §Data Layer.
 src/data/local.ts
