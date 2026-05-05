@@ -7,6 +7,7 @@ All notable changes to FencePro are documented here. Format follows
 ## [Unreleased]
 
 ### Added
+
 - Apache 2.0 license, NOTICE, CODE_OF_CONDUCT, CONTRIBUTING, SECURITY.
 - ESLint 9 (flat config) + Prettier toolchain.
 - Vitest + React Testing Library scaffolding.
@@ -16,8 +17,10 @@ All notable changes to FencePro are documented here. Format follows
 - HelicOps MCP integration for guarded source writes during development.
 
 ### Changed
+
 - README rewritten with badges, Highlights, Architecture pointer, Quick Start.
 
 ### Notes
+
 - Single-file `src/App.tsx` baseline preserved from initial commit; structural
   refactor lands in Lane 2.

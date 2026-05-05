@@ -1,0 +1,6 @@
+dist/
+coverage/
+node_modules/
+.vite/
+package-lock.json
+src/data/local.ts

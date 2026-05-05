@@ -43,8 +43,8 @@ CI runs the same checks. PRs that don't pass CI won't be merged.
   applies fixes.
 - TypeScript strict mode. Avoid `any`; prefer narrow types.
 - Components stay small; split when a file exceeds ~250 lines.
-- No comments unless the *why* is non-obvious. Identifiers should explain
-  *what*.
+- No comments unless the _why_ is non-obvious. Identifiers should explain
+  _what_.
 
 ## Commits
 
