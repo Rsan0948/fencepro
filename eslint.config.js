@@ -8,16 +8,7 @@ import globals from "globals";
 
 export default tseslint.config(
   {
-    ignores: [
-      "dist/**",
-      "coverage/**",
-      "node_modules/**",
-      ".vite/**",
-      "src/data/local.ts",
-      // Lane 2 refactor splits this monolith and makes it lint-clean;
-      // exclusion removed when that lane lands.
-      "src/App.tsx",
-    ],
+    ignores: ["dist/**", "coverage/**", "node_modules/**", ".vite/**", "src/data/local.ts"],
   },
   js.configs.recommended,
   ...tseslint.configs.recommended,
