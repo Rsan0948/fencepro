@@ -15,6 +15,11 @@ coverage
 .helicops/evidence/
 .helicops/runtime/
 
+# Internal-only orchestration artifacts. Lane briefs and orchestration
+# planning docs live on disk for the orchestrator + implementation agents
+# to reference, but never ship to the public repo.
+docs/lane_briefs/
+
 # Optional local data override — keep regional/branding data out of source.
 # See docs/architecture.md §Data Layer.
 src/data/local.ts
