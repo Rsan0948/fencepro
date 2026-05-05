@@ -31,9 +31,7 @@ describe("DefaultsBanner", () => {
   it("points contributors at src/data/local.ts", () => {
     state.isLocalLoaded = false;
     render(<DefaultsBanner />);
-    expect(
-      screen.getByText(/drop in src\/data\/local\.ts to customize/i),
-    ).toBeInTheDocument();
+    expect(screen.getByText(/drop in src\/data\/local\.ts to customize/i)).toBeInTheDocument();
   });
 
   it("references the architecture data layer section", () => {

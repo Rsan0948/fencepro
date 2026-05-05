@@ -30,10 +30,13 @@ function makeProject(overrides: Partial<Project> = {}): Project {
   return { ...base, ...overrides };
 }
 
-function renderDashboard(projects: Project[], handlers: Partial<{
-  onProjectClick: (p: Project) => void;
-  onNewEstimate: () => void;
-}> = {}) {
+function renderDashboard(
+  projects: Project[],
+  handlers: Partial<{
+    onProjectClick: (p: Project) => void;
+    onNewEstimate: () => void;
+  }> = {},
+) {
   return render(
     <MemoryRouter>
       <Dashboard
@@ -86,10 +89,7 @@ describe("Dashboard", () => {
   it("invokes onProjectClick when a row is clicked", async () => {
     const user = userEvent.setup();
     const onProjectClick = vi.fn();
-    renderDashboard(
-      [makeProject({ id: "p_click", client: "Clickable Co" })],
-      { onProjectClick },
-    );
+    renderDashboard([makeProject({ id: "p_click", client: "Clickable Co" })], { onProjectClick });
     await user.click(screen.getByText("Clickable Co"));
     expect(onProjectClick).toHaveBeenCalledTimes(1);
     expect(onProjectClick.mock.calls[0][0].id).toBe("p_click");

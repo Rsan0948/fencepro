@@ -20,11 +20,7 @@ import {
   renderFinalInvoice,
   renderPaymentReceipt,
 } from "./services/email";
-import {
-  getMockSessionRecord,
-  paymentProvider,
-  registerPaymentWebhook,
-} from "./services/payments";
+import { getMockSessionRecord, paymentProvider, registerPaymentWebhook } from "./services/payments";
 import { sans, t } from "./theme";
 import type { Adjustment, Project } from "./types";
 
