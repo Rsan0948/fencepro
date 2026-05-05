@@ -1,6 +1,13 @@
 node_modules
 dist
+coverage
+.vite
+*.tsbuildinfo
 .DS_Store
 *.local
 .vscode
 .idea
+
+# Optional local data override — keep regional/branding data out of source.
+# See docs/architecture.md §Data Layer.
+src/data/local.ts

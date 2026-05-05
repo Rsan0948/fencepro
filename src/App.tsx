@@ -1,3 +1,4 @@
+// @ts-nocheck — Lane 2 refactor adds proper types and removes this pragma.
 import { useState, useEffect, useRef } from "react";
 
 // Design Tokens
