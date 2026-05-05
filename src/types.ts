@@ -23,6 +23,7 @@ export interface Adjustment {
 export interface Project {
   id: string;
   client: string;
+  clientEmail?: string;
   county: string;
   fenceType: FenceTypeId;
   linearFeet: number;
@@ -38,6 +39,7 @@ export interface Project {
   paidAt: string | null;
   adjustments: Adjustment[];
   notes: string;
+  checkoutUrl?: string;
 }
 
 export interface BreakdownItem {
