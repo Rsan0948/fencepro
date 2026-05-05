@@ -14,12 +14,7 @@ export interface ProjectDetailProps {
   onAddAdjustment: (projectId: string, adjustment: Adjustment) => void;
 }
 
-export function ProjectDetail({
-  project,
-  onBack,
-  onInvoice,
-  onAddAdjustment,
-}: ProjectDetailProps) {
+export function ProjectDetail({ project, onBack, onInvoice, onAddAdjustment }: ProjectDetailProps) {
   const [showAdjust, setShowAdjust] = useState(false);
   const [adjLabel, setAdjLabel] = useState("");
   const [adjAmount, setAdjAmount] = useState("");

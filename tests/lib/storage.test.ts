@@ -69,10 +69,7 @@ describe("storage", () => {
   });
 
   it("returns the seed when the schema version does not match", () => {
-    fakeStorage.setItem(
-      KEY,
-      JSON.stringify({ schemaVersion: 99, projects: [{ id: "future" }] }),
-    );
+    fakeStorage.setItem(KEY, JSON.stringify({ schemaVersion: 99, projects: [{ id: "future" }] }));
     expect(loadProjects(SEED)).toEqual(SEED);
   });
 

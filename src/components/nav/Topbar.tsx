@@ -46,9 +46,7 @@ export function Topbar({ tab, onSwitchTab }: TopbarProps) {
           <div style={{ color: t.text, fontSize: 14, fontWeight: 700, letterSpacing: "-0.02em" }}>
             FencePro
           </div>
-          <div
-            style={{ color: t.muted, fontSize: 9, fontFamily: mono, letterSpacing: "0.1em" }}
-          >
+          <div style={{ color: t.muted, fontSize: 9, fontFamily: mono, letterSpacing: "0.1em" }}>
             {data.company.locale.toUpperCase()}
           </div>
         </div>

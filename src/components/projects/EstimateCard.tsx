@@ -124,10 +124,12 @@ export function EstimateCard({ quote, answers, onSave }: EstimateCardProps) {
         >
           <Label>Deposit Rate</Label>
           <div style={{ display: "flex", gap: 6 }}>
-            {([
-              { id: "materials", label: "Cover Materials" },
-              { id: "custom", label: "Custom" },
-            ] as Array<{ id: DepositMode; label: string }>).map((opt) => (
+            {(
+              [
+                { id: "materials", label: "Cover Materials" },
+                { id: "custom", label: "Custom" },
+              ] as Array<{ id: DepositMode; label: string }>
+            ).map((opt) => (
               <Pill
                 key={opt.id}
                 active={depositMode === opt.id}

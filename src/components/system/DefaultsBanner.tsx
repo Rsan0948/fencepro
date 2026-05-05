@@ -30,8 +30,8 @@ export function DefaultsBanner() {
         DEFAULTS
       </span>
       <span>
-        Running with default data — drop in src/data/local.ts to customize. See
-        docs/architecture.md §Data Layer.
+        Running with default data — drop in src/data/local.ts to customize. See docs/architecture.md
+        §Data Layer.
       </span>
     </div>
   );

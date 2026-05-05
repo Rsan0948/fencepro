@@ -236,18 +236,12 @@ function isFenceType(value: StageValue): value is FenceType {
 
 function isDimensionsValue(value: StageValue): value is DimensionsValue {
   return (
-    typeof value === "object" &&
-    value !== null &&
-    "linearFeet" in value &&
-    "heightFt" in value
+    typeof value === "object" && value !== null && "linearFeet" in value && "heightFt" in value
   );
 }
 
 function isCrewValue(value: StageValue): value is CrewValue {
   return (
-    typeof value === "object" &&
-    value !== null &&
-    "employees" in value &&
-    "hourlyWage" in value
+    typeof value === "object" && value !== null && "employees" in value && "hourlyWage" in value
   );
 }

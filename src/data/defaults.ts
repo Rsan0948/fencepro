@@ -15,11 +15,21 @@ const defaults: LocalData = {
     Plains: { low: 24, high: 38 },
   },
   fenceTypes: [
-    { id: "wood_privacy", label: "Wood Privacy", icon: "\u{1FAB5}", desc: "6ft cedar boards, solid panels" },
+    {
+      id: "wood_privacy",
+      label: "Wood Privacy",
+      icon: "\u{1FAB5}",
+      desc: "6ft cedar boards, solid panels",
+    },
     { id: "split_rail", label: "Split Rail", icon: "\u{1F332}", desc: "Rustic 2-3 rail pine" },
     { id: "chain_link", label: "Chain Link", icon: "⛓️", desc: "Galvanized steel mesh" },
     { id: "vinyl", label: "Vinyl", icon: "\u{1F3E0}", desc: "PVC panels, low maintenance" },
-    { id: "wood_picket", label: "Wood Picket", icon: "\u{1F3E1}", desc: "Classic 4ft painted picket" },
+    {
+      id: "wood_picket",
+      label: "Wood Picket",
+      icon: "\u{1F3E1}",
+      desc: "Classic 4ft painted picket",
+    },
     { id: "ornamental", label: "Ornamental", icon: "⚜️", desc: "Decorative steel/aluminum" },
   ],
   prices: {

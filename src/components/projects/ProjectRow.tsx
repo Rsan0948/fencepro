@@ -37,7 +37,9 @@ export function ProjectRow({ project, onClick, last }: ProjectRowProps) {
       </div>
       <div style={{ color: t.text, fontSize: 13, fontFamily: mono }}>{fmt(total)}</div>
       <StatusBadge status={project.status} />
-      <div style={{ color: t.muted, fontSize: 12, fontFamily: mono }}>{fmtD(project.createdAt)}</div>
+      <div style={{ color: t.muted, fontSize: 12, fontFamily: mono }}>
+        {fmtD(project.createdAt)}
+      </div>
       <div style={{ color: t.muted, fontSize: 12, textAlign: "right" }}>→</div>
     </div>
   );
