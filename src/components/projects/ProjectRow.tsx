@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { fenceLabel, fmt, fmtD } from "../../lib/format";
 import { mono, sans, t } from "../../theme";
 import type { Project } from "../../types";
@@ -27,6 +28,7 @@ export function ProjectRow({ project, onClick, last }: ProjectRowProps) {
         background: hov ? t.surfaceHigh : "transparent",
         cursor: "pointer",
         transition: "background 0.12s",
+        alignItems: "center",
       }}
     >
       <div style={{ color: t.text, fontSize: 14, fontFamily: sans, fontWeight: 500 }}>
@@ -35,7 +37,25 @@ export function ProjectRow({ project, onClick, last }: ProjectRowProps) {
       <div style={{ color: t.sub, fontSize: 13, fontFamily: sans }}>
         {fenceLabel(project.fenceType)}
       </div>
-      <div style={{ color: t.text, fontSize: 13, fontFamily: mono }}>{fmt(total)}</div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+        <span style={{ color: t.text, fontSize: 13, fontFamily: mono }}>{fmt(total)}</span>
+        {project.checkoutUrl && (
+          <Link
+            to={project.checkoutUrl}
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              color: t.muted,
+              fontSize: 10,
+              fontFamily: mono,
+              letterSpacing: "0.06em",
+              textDecoration: "none",
+              textTransform: "uppercase",
+            }}
+          >
+            (demo) simulate payment →
+          </Link>
+        )}
+      </div>
       <StatusBadge status={project.status} />
       <div style={{ color: t.muted, fontSize: 12, fontFamily: mono }}>
         {fmtD(project.createdAt)}
