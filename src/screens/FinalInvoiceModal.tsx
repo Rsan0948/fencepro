@@ -138,11 +138,7 @@ export function FinalInvoiceModal({ project, onClose, onSend }: FinalInvoiceModa
             margin: "16px 0 10px",
           }}
         />
-        <HoverBtn
-          primary
-          onClick={handleSubmit}
-          style={{ width: "100%", textAlign: "center" }}
-        >
+        <HoverBtn primary onClick={handleSubmit} style={{ width: "100%", textAlign: "center" }}>
           {submitting ? "Sending…" : `Send Final Invoice via Stripe · ${fmt(remaining)}`}
         </HoverBtn>
       </div>

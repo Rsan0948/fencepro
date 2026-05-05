@@ -13,17 +13,11 @@ export function getEmail(id: string): MockEmailMessage | null {
   return mock.get(id);
 }
 
-export function subscribeToEmails(
-  handler: (message: MockEmailMessage) => void,
-): () => void {
+export function subscribeToEmails(handler: (message: MockEmailMessage) => void): () => void {
   return mock.subscribe(handler);
 }
 
-export {
-  renderEstimateSent,
-  renderFinalInvoice,
-  renderPaymentReceipt,
-} from "./templates";
+export { renderEstimateSent, renderFinalInvoice, renderPaymentReceipt } from "./templates";
 
 export type {
   EstimateSentInput,

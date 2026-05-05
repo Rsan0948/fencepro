@@ -1,9 +1,4 @@
-import type {
-  EmailProvider,
-  EmailSendInput,
-  EmailSendResult,
-  MockEmailMessage,
-} from "./types";
+import type { EmailProvider, EmailSendInput, EmailSendResult, MockEmailMessage } from "./types";
 
 const DEFAULT_DELAY_MS = 200;
 

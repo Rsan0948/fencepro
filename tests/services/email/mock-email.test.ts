@@ -25,7 +25,7 @@ describe("MockEmailProvider", () => {
 
   it("get(id) returns the message with html preserved", async () => {
     const provider = new MockEmailProvider({ delayMs: 0 });
-    const html = "<a href=\"/checkout/cs_mock_xyz\">Pay deposit</a>";
+    const html = '<a href="/checkout/cs_mock_xyz">Pay deposit</a>';
     const result = await provider.send(makeInput({ html }));
     const stored = provider.get(result.id);
     expect(stored).not.toBeNull();

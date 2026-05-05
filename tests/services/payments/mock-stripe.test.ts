@@ -2,7 +2,9 @@ import { describe, expect, it, vi } from "vitest";
 import { MockStripeProvider } from "../../../src/services/payments/mock-stripe";
 import type { CreateCheckoutSessionInput } from "../../../src/services/payments/types";
 
-function makeInput(overrides: Partial<CreateCheckoutSessionInput> = {}): CreateCheckoutSessionInput {
+function makeInput(
+  overrides: Partial<CreateCheckoutSessionInput> = {},
+): CreateCheckoutSessionInput {
   return {
     amount: 1500,
     currency: "usd",

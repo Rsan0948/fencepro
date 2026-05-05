@@ -1,9 +1,5 @@
 import { MockStripeProvider } from "./mock-stripe";
-import type {
-  MockSessionRecord,
-  PaymentProvider,
-  PaymentWebhookHandler,
-} from "./types";
+import type { MockSessionRecord, PaymentProvider, PaymentWebhookHandler } from "./types";
 
 const mock = new MockStripeProvider();
 
