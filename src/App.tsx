@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { Route, Routes } from "react-router-dom";
 import { Topbar } from "./components/nav/Topbar";
 import type { EstimateSavePayload } from "./components/projects/EstimateCard";
 import { EmailPreviewModal } from "./components/system/EmailPreviewModal";
@@ -9,6 +10,7 @@ import { fmt } from "./lib/format";
 import { loadProjects, saveProjects } from "./lib/storage";
 import { Dashboard } from "./screens/Dashboard";
 import { FinalInvoiceModal } from "./screens/FinalInvoiceModal";
+import { MockCheckout } from "./screens/MockCheckout";
 import { NewEstimate } from "./screens/NewEstimate";
 import { ProjectDetail } from "./screens/ProjectDetail";
 import {
@@ -18,7 +20,11 @@ import {
   renderFinalInvoice,
   renderPaymentReceipt,
 } from "./services/email";
-import { getMockSessionRecord, paymentProvider, registerPaymentWebhook } from "./services/payments";
+import {
+  getMockSessionRecord,
+  paymentProvider,
+  registerPaymentWebhook,
+} from "./services/payments";
 import { sans, t } from "./theme";
 import type { Adjustment, Project } from "./types";
 
@@ -253,7 +259,7 @@ export default function FenceProApp() {
     if (tabName === "estimate") setScreen("estimate");
   }
 
-  return (
+  const mainLayout = (
     <div
       style={{
         minHeight: "100vh",
@@ -302,9 +308,17 @@ export default function FenceProApp() {
           onSend={handleSendInvoice}
         />
       )}
+    </div>
+  );
 
+  return (
+    <>
+      <Routes>
+        <Route path="/checkout/:sessionId" element={<MockCheckout />} />
+        <Route path="*" element={mainLayout} />
+      </Routes>
       <Toast toasts={toasts} onClick={openPreview} onDismiss={dismissToast} />
       <EmailPreviewModal message={previewedMessage} onClose={closePreview} />
-    </div>
+    </>
   );
 }
