@@ -8,6 +8,13 @@ coverage
 .vscode
 .idea
 
+# HelicOps runtime artifacts (broker cache + per-session audit/evidence/runtime).
+# .helicops/config.toml IS committed; cache/audit/evidence/runtime are not.
+.helicops/cache/
+.helicops/audit/
+.helicops/evidence/
+.helicops/runtime/
+
 # Optional local data override — keep regional/branding data out of source.
 # See docs/architecture.md §Data Layer.
 src/data/local.ts
