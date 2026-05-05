@@ -1,0 +1,26 @@
+{
+  "mcpServers": {
+    "helicops": {
+      "command": "/Users/rubensanchez/Developer/HelicOps_Live/.venv/bin/helicops-mcp",
+      "env": {
+        "PYTHONPATH": "/Users/rubensanchez/Developer/HelicOps_Live:/Users/rubensanchez/Developer/HelicOps_Live/packages/py:/Users/rubensanchez/Developer/HelicOps_Live/packages/core",
+        "HELICOPS_PROJECT_ROOT": "/Users/rubensanchez/Developer/fencepro",
+        "HELICOPS_MCP_GUARDED_WRITES_ONLY": "1",
+        "HELICOPS_BRIDGE_MODE": "1"
+      },
+      "helicopsContract": {
+        "runtime_gated": true,
+        "required_flow": [
+          "get_generation_context",
+          "authorize_tool_call",
+          "get_applicable_guardrails",
+          "propose_write",
+          "validate_write",
+          "commit_write"
+        ],
+        "write_policy": "Source and config writes must use full-file content proposals through the HelicOps MCP guarded-write pipeline.",
+        "remediation": "Do not use Write/Edit/MultiEdit directly for source or config files. Use the HelicOps MCP tools and commit only after validate_write passes."
+      }
+    }
+  }
+}
