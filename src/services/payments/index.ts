@@ -1,7 +1,8 @@
 import { MockStripeProvider } from "./mock-stripe";
 import type { MockSessionRecord, PaymentProvider, PaymentWebhookHandler } from "./types";
 
-const mock = new MockStripeProvider();
+const isTestEnv = import.meta.env.MODE === "test";
+const mock = new MockStripeProvider(isTestEnv ? { delayMs: 0 } : {});
 
 export const paymentProvider: PaymentProvider = mock;
 

@@ -1,7 +1,8 @@
 import { MockEmailProvider } from "./mock-email";
 import type { EmailProvider, MockEmailMessage } from "./types";
 
-const mock = new MockEmailProvider();
+const isTestEnv = import.meta.env.MODE === "test";
+const mock = new MockEmailProvider(isTestEnv ? { delayMs: 0 } : {});
 
 export const emailProvider: EmailProvider = mock;
 
