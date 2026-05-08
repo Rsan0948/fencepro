@@ -8,7 +8,14 @@ import globals from "globals";
 
 export default tseslint.config(
   {
-    ignores: ["dist/**", "coverage/**", "node_modules/**", ".vite/**", "src/data/local.ts"],
+    ignores: [
+      "dist/**",
+      "coverage/**",
+      "node_modules/**",
+      ".vite/**",
+      ".hf-deploy/**",
+      "src/data/local.ts",
+    ],
   },
   js.configs.recommended,
   ...tseslint.configs.recommended,

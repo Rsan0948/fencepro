@@ -5,3 +5,4 @@ node_modules/
 package-lock.json
 src/data/local.ts
 .claude/settings.local.json
+.hf-deploy/
