@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { HoverBtn } from "../components/atoms/HoverBtn";
 import { fmt } from "../lib/format";
 import { useIsMobile } from "../lib/useIsMobile";
@@ -20,6 +20,14 @@ export function FinalInvoiceModal({ project, onClose, onSend }: FinalInvoiceModa
   const revisedTotal = project.finalPrice + adjustTotal;
   const remaining = revisedTotal - project.depositPaid;
 
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape") onClose();
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [onClose]);
+
   async function handleSubmit() {
     if (!clientEmail || submitting) return;
     setSubmitting(true);
@@ -33,6 +41,8 @@ export function FinalInvoiceModal({ project, onClose, onSend }: FinalInvoiceModa
 
   return (
     <div
+      onClick={onClose}
+      role="presentation"
       style={{
         position: "fixed",
         inset: 0,
@@ -45,6 +55,10 @@ export function FinalInvoiceModal({ project, onClose, onSend }: FinalInvoiceModa
       }}
     >
       <div
+        onClick={(e) => e.stopPropagation()}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Final invoice"
         style={{
           background: t.surface,
           border: `1px solid ${t.accent}`,
