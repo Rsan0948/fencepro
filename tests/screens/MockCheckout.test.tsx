@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { describe, expect, it, vi } from "vitest";
@@ -64,7 +64,7 @@ describe("MockCheckout", () => {
     }
   });
 
-  it("renders the Already paid disabled state when the session is already paid", async () => {
+  it("renders a Payment received panel when the session is already paid", async () => {
     const user = userEvent.setup();
     const ref = await seedSession(450);
     renderAt(ref.url);
@@ -73,7 +73,9 @@ describe("MockCheckout", () => {
       expect(screen.getByText("HOME")).toBeInTheDocument();
     });
     renderAt(ref.url);
-    expect(await screen.findByRole("button", { name: /already paid/i })).toBeDisabled();
+    expect(await screen.findByText(/payment received/i)).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /^pay \$/i })).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /back to fencepro/i })).toBeInTheDocument();
   });
 
   it("renders the expired panel when the session id is unknown", () => {
@@ -85,6 +87,15 @@ describe("MockCheckout", () => {
     const user = userEvent.setup();
     renderAt("/checkout/cs_mock_does_not_exist");
     await user.click(screen.getByRole("button", { name: /back to fencepro/i }));
+    await waitFor(() => {
+      expect(screen.getByText("HOME")).toBeInTheDocument();
+    });
+  });
+
+  it("pressing Escape navigates back to the dashboard", async () => {
+    const ref = await seedSession(750);
+    renderAt(ref.url);
+    fireEvent.keyDown(window, { key: "Escape" });
     await waitFor(() => {
       expect(screen.getByText("HOME")).toBeInTheDocument();
     });
