@@ -12,7 +12,6 @@ import { EstimateCard } from "../components/projects/EstimateCard";
 import type { EstimateSavePayload } from "../components/projects/EstimateCard";
 import { data } from "../data";
 import { calcQuote } from "../lib/quote";
-import { useIsMobile } from "../lib/useIsMobile";
 import { mono, t } from "../theme";
 import type { EstimateAnswers, FenceType, Quote } from "../types";
 
@@ -80,7 +79,6 @@ export function NewEstimate({ onSave }: NewEstimateProps) {
   const [estimate, setEstimate] = useState<EstimateState | null>(null);
   const [renderKey, setRenderKey] = useState(0);
   const bottomRef = useRef<HTMLDivElement | null>(null);
-  const isMobile = useIsMobile();
 
   useEffect(() => {
     setTyping(true);
@@ -146,7 +144,7 @@ export function NewEstimate({ onSave }: NewEstimateProps) {
 
   const curStage = STAGES[stage];
   const showInlinePanel = !estimate && !typing && curStage;
-  const tailPadding = estimate ? 40 : isMobile ? 16 : 140;
+  const tailPadding = estimate ? 40 : 16;
 
   return (
     <div style={{ paddingBottom: tailPadding }}>
@@ -171,30 +169,12 @@ export function NewEstimate({ onSave }: NewEstimateProps) {
           <EstimateCard quote={estimate.data} answers={estimate.answers} onSave={onSave} />
         </div>
       )}
-      {showInlinePanel && isMobile && (
-        <div style={{ marginTop: 8, marginBottom: 16 }} key={renderKey}>
+      {showInlinePanel && (
+        <div style={{ marginTop: 24, marginBottom: 16 }} key={renderKey}>
           {curStage.render((v, s) => handleAnswer(curStage.id, v, s))}
         </div>
       )}
       <div ref={bottomRef} />
-      {showInlinePanel && !isMobile && (
-        <div
-          style={{
-            position: "fixed",
-            bottom: 0,
-            left: 0,
-            right: 0,
-            background: `linear-gradient(to top,${t.bg} 60%,transparent)`,
-            padding: "24px 0 28px",
-            display: "flex",
-            justifyContent: "center",
-          }}
-        >
-          <div style={{ width: "100%", maxWidth: 640, padding: "0 24px" }} key={renderKey}>
-            {curStage.render((v, s) => handleAnswer(curStage.id, v, s))}
-          </div>
-        </div>
-      )}
       {estimate && (
         <div style={{ display: "flex", justifyContent: "center", marginTop: 16 }}>
           <button
