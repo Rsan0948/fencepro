@@ -27,8 +27,7 @@ const ANSWERS: EstimateAnswers = {
   fenceType: FENCE,
   linearFeet: 100,
   heightFt: 6,
-  employees: 2,
-  hourlyWage: 22,
+  crew: [{ count: 2, hourlyWage: 22, hours: 40 }],
 };
 
 function renderCard(onSave: (payload: unknown) => void = () => {}) {

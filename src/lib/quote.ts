@@ -1,13 +1,12 @@
 import { data as defaultData } from "../data";
 import type { LocalData } from "../data/types";
-import type { BreakdownItem, FenceTypeId, Quote } from "../types";
+import type { BreakdownItem, CrewMember, FenceTypeId, Quote } from "../types";
 
 export interface CalcQuoteInput {
   fenceType: FenceTypeId;
   linearFeet: number;
   heightFt: number;
-  employees: number;
-  hourlyWage: number;
+  crew: CrewMember[];
   county: string;
 }
 
@@ -59,8 +58,11 @@ export function calcQuote(input: CalcQuoteInput, ctx: QuoteContext = defaultCont
     }
   }
 
-  const hrs = sections * (input.fenceType === "wood_privacy" ? 1.5 : 1.2);
-  const labor = hrs * input.employees * input.hourlyWage;
+  // Labor sums per-tier (count × hours × wage). Hours come from user input
+  // per tier instead of a sections-based heuristic — more accurate when
+  // crews include leads or sub-crews on different rates.
+  const labor = input.crew.reduce((s, m) => s + m.count * m.hours * m.hourlyWage, 0);
+  const totalHours = input.crew.reduce((s, m) => s + m.count * m.hours, 0);
   const market = ctx.countyRates[input.county] ?? ctx.countyRates.default;
 
   return {
@@ -68,7 +70,7 @@ export function calcQuote(input: CalcQuoteInput, ctx: QuoteContext = defaultCont
     laborCost: labor,
     totalCost: mat + labor,
     breakdown,
-    totalHours: hrs,
+    totalHours,
     sections,
     marketLow: market.low * linearFeet,
     marketHigh: market.high * linearFeet,

@@ -59,13 +59,18 @@ export interface Quote {
   marketHigh: number;
 }
 
+export interface CrewMember {
+  count: number;
+  hourlyWage: number;
+  hours: number;
+}
+
 export interface EstimateAnswers {
   county?: string;
   fenceType?: FenceType;
   linearFeet?: number;
   heightFt?: number;
-  employees?: number;
-  hourlyWage?: number;
+  crew?: CrewMember[];
 }
 
 export interface CountyRate {

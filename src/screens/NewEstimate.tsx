@@ -51,7 +51,16 @@ const STAGES: Stage[] = [
     id: "crew",
     msg: "Tell me about your crew - how many people and what do you pay them?",
     render: (next) => (
-      <CrewStep onConfirm={(v) => next(v, `${v.employees} workers @ $${v.hourlyWage}/hr`)} />
+      <CrewStep
+        onConfirm={(v) => {
+          const totalHeadcount = v.members.reduce((s, m) => s + m.count, 0);
+          const summary =
+            v.members.length === 1
+              ? `${v.members[0].count} workers @ $${v.members[0].hourlyWage}/hr × ${v.members[0].hours} hrs`
+              : `${totalHeadcount} workers across ${v.members.length} tiers`;
+          next(v, summary);
+        }}
+      />
     ),
   },
 ];
@@ -103,8 +112,7 @@ export function NewEstimate({ onSave }: NewEstimateProps) {
       ans.linearFeet = value.linearFeet;
       ans.heightFt = value.heightFt;
     } else if (stageId === "crew" && isCrewValue(value)) {
-      ans.employees = value.employees;
-      ans.hourlyWage = value.hourlyWage;
+      ans.crew = value.members;
     }
     setAnswers(ans);
     setMessages((p) => [...p, { role: "user", summary }]);
@@ -125,8 +133,7 @@ export function NewEstimate({ onSave }: NewEstimateProps) {
           fenceType: ans.fenceType?.id ?? "wood_privacy",
           linearFeet: ans.linearFeet ?? 0,
           heightFt: ans.heightFt ?? 0,
-          employees: ans.employees ?? 0,
-          hourlyWage: ans.hourlyWage ?? 0,
+          crew: ans.crew ?? [{ count: 1, hourlyWage: 20, hours: 8 }],
           county: ans.county ?? "default",
         });
         setEstimate({ data: q, answers: ans });
@@ -231,7 +238,8 @@ function isDimensionsValue(value: StageValue): value is DimensionsValue {
 }
 
 function isCrewValue(value: StageValue): value is CrewValue {
-  return (
-    typeof value === "object" && value !== null && "employees" in value && "hourlyWage" in value
-  );
+  if (typeof value !== "object" || value === null) return false;
+  if (!("members" in value)) return false;
+  const candidate = (value as { members: unknown }).members;
+  return Array.isArray(candidate);
 }
