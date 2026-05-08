@@ -27,12 +27,13 @@ export function HoverBtn({ children, onClick, primary = false, style }: HoverBtn
         border: `1px solid ${primary ? t.accent : t.border}`,
         color: primary ? (hover ? t.bg : t.accent) : t.sub,
         borderRadius: 10,
-        padding: "10px 18px",
+        padding: "12px 18px",
         fontSize: 13,
         fontWeight: 600,
         fontFamily: sans,
         cursor: "pointer",
         transition: "all 0.15s",
+        minHeight: 44,
         ...style,
       }}
     >

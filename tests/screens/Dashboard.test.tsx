@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter } from "react-router-dom";
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { Dashboard } from "../../src/screens/Dashboard";
 import type { Project } from "../../src/types";
 
@@ -47,6 +47,26 @@ function renderDashboard(
     </MemoryRouter>,
   );
 }
+
+function stubMatchMedia(matches: boolean): void {
+  vi.stubGlobal(
+    "matchMedia",
+    vi.fn(() => ({
+      matches,
+      media: "(max-width: 768px)",
+      onchange: null,
+      addEventListener: () => {},
+      removeEventListener: () => {},
+      addListener: () => {},
+      removeListener: () => {},
+      dispatchEvent: () => true,
+    })) as unknown as typeof window.matchMedia,
+  );
+}
+
+afterEach(() => {
+  vi.unstubAllGlobals();
+});
 
 describe("Dashboard", () => {
   it("renders a row for each YTD project", () => {
@@ -106,5 +126,29 @@ describe("Dashboard", () => {
   it("renders the DefaultsBanner above the dashboard header", () => {
     renderDashboard([]);
     expect(screen.getByText("DEFAULTS")).toBeInTheDocument();
+  });
+
+  it("hides the desktop column-header strip on mobile", () => {
+    stubMatchMedia(true);
+    renderDashboard([makeProject({ client: "Mobile Client" })]);
+    // the desktop strip renders a single "Client" / "Type" / "Amount" / "Status" / "Date" header row
+    expect(screen.queryByText("Client")).not.toBeInTheDocument();
+    expect(screen.queryByText("Amount")).not.toBeInTheDocument();
+    expect(screen.queryByText("Status")).not.toBeInTheDocument();
+  });
+
+  it("renders the simulate-payment link as a 44px button on mobile", () => {
+    stubMatchMedia(true);
+    renderDashboard([
+      makeProject({
+        id: "p_with",
+        client: "Has Checkout",
+        checkoutUrl: "/checkout/cs_mock_x",
+      }),
+    ]);
+    const link = screen.getByRole("link", { name: /simulate payment/i });
+    const inlineStyle = link.getAttribute("style") ?? "";
+    expect(inlineStyle).toMatch(/min-height:\s*44px/);
+    expect(inlineStyle).toMatch(/justify-content:\s*center/);
   });
 });

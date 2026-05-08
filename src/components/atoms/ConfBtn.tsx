@@ -17,13 +17,14 @@ export function ConfBtn({ onClick, label }: ConfBtnProps) {
         background: hover ? t.accent : t.accentDim,
         border: `1px solid ${t.accent}`,
         borderRadius: 10,
-        padding: "12px 20px",
+        padding: "14px 20px",
         color: hover ? t.bg : t.accent,
         fontSize: 14,
         fontWeight: 600,
         cursor: "pointer",
         fontFamily: sans,
         transition: "all 0.15s",
+        minHeight: 48,
       }}
     >
       {label} →

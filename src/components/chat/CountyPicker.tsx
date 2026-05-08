@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useIsMobile } from "../../lib/useIsMobile";
 import { sans, t } from "../../theme";
 
 export interface CountyPickerProps {
@@ -8,6 +9,7 @@ export interface CountyPickerProps {
 
 export function CountyPicker({ counties, onSelect }: CountyPickerProps) {
   const [q, setQ] = useState("");
+  const isMobile = useIsMobile();
   const list = counties.filter((c) => c.toLowerCase().includes(q.toLowerCase()));
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
@@ -20,14 +22,23 @@ export function CountyPicker({ counties, onSelect }: CountyPickerProps) {
           background: t.surface,
           border: `1px solid ${t.border}`,
           borderRadius: 10,
-          padding: "10px 16px",
+          padding: "12px 16px",
           color: t.text,
           fontSize: 14,
           fontFamily: sans,
           outline: "none",
+          minHeight: 44,
         }}
       />
-      <div style={{ display: "flex", flexWrap: "wrap", gap: 8, maxHeight: 180, overflowY: "auto" }}>
+      <div
+        style={{
+          display: "flex",
+          flexWrap: "wrap",
+          gap: 8,
+          maxHeight: 220,
+          overflowY: "auto",
+        }}
+      >
         {list.map((c) => (
           <button
             key={c}
@@ -36,12 +47,13 @@ export function CountyPicker({ counties, onSelect }: CountyPickerProps) {
               background: t.surface,
               border: `1px solid ${t.border}`,
               borderRadius: 8,
-              padding: "8px 14px",
+              padding: isMobile ? "12px 14px" : "8px 14px",
               color: t.sub,
               fontSize: 13,
               cursor: "pointer",
               fontFamily: sans,
               transition: "all 0.15s",
+              minHeight: isMobile ? 44 : undefined,
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.borderColor = t.accent;
