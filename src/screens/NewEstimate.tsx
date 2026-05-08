@@ -12,6 +12,7 @@ import { EstimateCard } from "../components/projects/EstimateCard";
 import type { EstimateSavePayload } from "../components/projects/EstimateCard";
 import { data } from "../data";
 import { calcQuote } from "../lib/quote";
+import { useIsMobile } from "../lib/useIsMobile";
 import { mono, t } from "../theme";
 import type { EstimateAnswers, FenceType, Quote } from "../types";
 
@@ -79,6 +80,7 @@ export function NewEstimate({ onSave }: NewEstimateProps) {
   const [estimate, setEstimate] = useState<EstimateState | null>(null);
   const [renderKey, setRenderKey] = useState(0);
   const bottomRef = useRef<HTMLDivElement | null>(null);
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     setTyping(true);
@@ -143,9 +145,11 @@ export function NewEstimate({ onSave }: NewEstimateProps) {
   }
 
   const curStage = STAGES[stage];
+  const showInlinePanel = !estimate && !typing && curStage;
+  const tailPadding = estimate ? 40 : isMobile ? 16 : 140;
 
   return (
-    <div style={{ paddingBottom: estimate ? 40 : 140 }}>
+    <div style={{ paddingBottom: tailPadding }}>
       {messages.map((m, i) => (
         <ChatBubble key={i} role={m.role} content={m.content} summary={m.summary} />
       ))}
@@ -167,8 +171,13 @@ export function NewEstimate({ onSave }: NewEstimateProps) {
           <EstimateCard quote={estimate.data} answers={estimate.answers} onSave={onSave} />
         </div>
       )}
+      {showInlinePanel && isMobile && (
+        <div style={{ marginTop: 8, marginBottom: 16 }} key={renderKey}>
+          {curStage.render((v, s) => handleAnswer(curStage.id, v, s))}
+        </div>
+      )}
       <div ref={bottomRef} />
-      {!estimate && !typing && curStage && (
+      {showInlinePanel && !isMobile && (
         <div
           style={{
             position: "fixed",
@@ -205,13 +214,14 @@ export function NewEstimate({ onSave }: NewEstimateProps) {
               background: "transparent",
               border: `1px solid ${t.border}`,
               borderRadius: 10,
-              padding: "10px 20px",
+              padding: "12px 20px",
               color: t.muted,
               fontSize: 12,
               cursor: "pointer",
               fontFamily: mono,
               letterSpacing: "0.1em",
               transition: "all 0.15s",
+              minHeight: 44,
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.borderColor = t.accent;
