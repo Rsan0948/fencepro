@@ -6,7 +6,9 @@ All notable changes to FencePro are documented here. Format follows
 
 ## [Unreleased]
 
-_Nothing yet._
+### Added
+
+- **Close project action.** ProjectDetail gains a small `× CLOSE PROJECT` button next to the back affordance. Click prompts a `window.confirm`; on confirm, the project is removed from `projects` state, selection/invoice references are cleared, and navigation returns to the dashboard. Lets reviewers (or the operator) clear out test projects without going through the full deposit-or-final payment flow.
 
 ## [0.1.1] - 2026-05-08
 

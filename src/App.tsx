@@ -249,6 +249,14 @@ export default function FenceProApp() {
     );
   }
 
+  function handleDeleteProject(projectId: string) {
+    setProjects((prev) => prev.filter((p) => p.id !== projectId));
+    if (selectedProjectId === projectId) setSelectedProjectId(null);
+    if (invoiceProjectId === projectId) setInvoiceProjectId(null);
+    setScreen("dashboard");
+    setTab("dashboard");
+  }
+
   async function handleSendInvoice(project: Project, clientEmail: string) {
     const adjustTotal = project.adjustments.reduce((s, a) => s + a.amount, 0);
     const revisedTotal = project.finalPrice + adjustTotal;
@@ -334,6 +342,7 @@ export default function FenceProApp() {
             }}
             onInvoice={(p) => setInvoiceProjectId(p.id)}
             onAddAdjustment={handleAddAdjustment}
+            onDelete={handleDeleteProject}
           />
         )}
       </div>

@@ -13,9 +13,16 @@ export interface ProjectDetailProps {
   onBack: () => void;
   onInvoice: (project: Project) => void;
   onAddAdjustment: (projectId: string, adjustment: Adjustment) => void;
+  onDelete: (projectId: string) => void;
 }
 
-export function ProjectDetail({ project, onBack, onInvoice, onAddAdjustment }: ProjectDetailProps) {
+export function ProjectDetail({
+  project,
+  onBack,
+  onInvoice,
+  onAddAdjustment,
+  onDelete,
+}: ProjectDetailProps) {
   const [showAdjust, setShowAdjust] = useState(false);
   const [adjLabel, setAdjLabel] = useState("");
   const [adjAmount, setAdjAmount] = useState("");
@@ -33,25 +40,59 @@ export function ProjectDetail({ project, onBack, onInvoice, onAddAdjustment }: P
     setShowAdjust(false);
   }
 
+  function handleDelete() {
+    const ok = window.confirm(
+      `Close ${project.client}? The project will be removed from your dashboard.`,
+    );
+    if (ok) onDelete(project.id);
+  }
+
   return (
     <div style={{ padding: "0 0 40px" }}>
-      <button
-        onClick={onBack}
+      <div
         style={{
-          background: "transparent",
-          border: "none",
-          color: t.muted,
-          fontSize: 13,
-          fontFamily: mono,
-          cursor: "pointer",
-          letterSpacing: "0.08em",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
           marginBottom: 20,
-          padding: 0,
-          minHeight: 44,
+          gap: 12,
         }}
       >
-        ← BACK
-      </button>
+        <button
+          onClick={onBack}
+          style={{
+            background: "transparent",
+            border: "none",
+            color: t.muted,
+            fontSize: 13,
+            fontFamily: mono,
+            cursor: "pointer",
+            letterSpacing: "0.08em",
+            padding: 0,
+            minHeight: 44,
+          }}
+        >
+          ← BACK
+        </button>
+        <button
+          onClick={handleDelete}
+          aria-label="Close project"
+          style={{
+            background: "transparent",
+            border: `1px solid ${t.border}`,
+            color: t.muted,
+            fontSize: 11,
+            fontFamily: mono,
+            letterSpacing: "0.08em",
+            cursor: "pointer",
+            padding: "0 14px",
+            borderRadius: 8,
+            minHeight: 36,
+          }}
+        >
+          × CLOSE PROJECT
+        </button>
+      </div>
 
       <div
         style={{
