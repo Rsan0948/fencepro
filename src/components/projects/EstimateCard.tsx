@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { fmt } from "../../lib/format";
+import { useIsMobile } from "../../lib/useIsMobile";
 import { mono, sans, t } from "../../theme";
 import type { EstimateAnswers, Quote } from "../../types";
 import { ConfBtn } from "../atoms/ConfBtn";
@@ -37,6 +38,7 @@ export function EstimateCard({ quote, answers, onSave }: EstimateCardProps) {
   const [depositMode, setDepositMode] = useState<DepositMode>("materials");
   const [customDepositPct, setCustomDepositPct] = useState(40);
   const [sent, setSent] = useState(false);
+  const isMobile = useIsMobile();
 
   const finalPrice = quote.totalCost * (1 + margin / 100);
   const profit = finalPrice - quote.totalCost;
@@ -46,6 +48,9 @@ export function EstimateCard({ quote, answers, onSave }: EstimateCardProps) {
   const depositAmt = finalPrice * (depositPct / 100);
   const balanceAmt = finalPrice - depositAmt;
 
+  const sectionPad = isMobile ? "14px 16px" : "16px 24px";
+  const headerPad = isMobile ? "16px 16px" : "20px 24px";
+
   return (
     <div style={{ animation: "fadeSlideUp 0.5s ease" }}>
       <div
@@ -53,10 +58,12 @@ export function EstimateCard({ quote, answers, onSave }: EstimateCardProps) {
           background: `linear-gradient(135deg,${t.surface} 0%,#1a1a2e 100%)`,
           border: `1px solid ${t.accent}`,
           borderRadius: "16px 16px 0 0",
-          padding: "20px 24px",
+          padding: headerPad,
           display: "flex",
+          flexDirection: isMobile ? "column" : "row",
           justifyContent: "space-between",
-          alignItems: "center",
+          alignItems: isMobile ? "flex-start" : "center",
+          gap: isMobile ? 8 : 0,
         }}
       >
         <div>
@@ -71,18 +78,31 @@ export function EstimateCard({ quote, answers, onSave }: EstimateCardProps) {
           >
             YOUR ESTIMATE
           </div>
-          <div style={{ color: t.text, fontSize: 28, fontWeight: 700, fontFamily: sans }}>
+          <div
+            style={{
+              color: t.text,
+              fontSize: isMobile ? 24 : 28,
+              fontWeight: 700,
+              fontFamily: sans,
+            }}
+          >
             {fmt(finalPrice)}
           </div>
           <div style={{ color: t.muted, fontSize: 12, fontFamily: mono, marginTop: 2 }}>
             {answers.county} Co. · {answers.fenceType?.label} · {answers.linearFeet} lin ft
           </div>
         </div>
-        <div style={{ textAlign: "right" }}>
+        <div
+          style={{
+            textAlign: isMobile ? "left" : "right",
+            display: "flex",
+            flexDirection: isMobile ? "row" : "column",
+            gap: isMobile ? 8 : 0,
+            alignItems: isMobile ? "baseline" : "flex-end",
+          }}
+        >
           <div style={{ color: t.success, fontSize: 13, fontFamily: mono }}>+{fmt(profit)}</div>
-          <div style={{ color: t.muted, fontSize: 11, marginTop: 2, fontFamily: mono }}>
-            {margin}% margin
-          </div>
+          <div style={{ color: t.muted, fontSize: 11, fontFamily: mono }}>{margin}% margin</div>
         </div>
       </div>
 
@@ -91,7 +111,7 @@ export function EstimateCard({ quote, answers, onSave }: EstimateCardProps) {
           background: t.surface,
           borderLeft: `1px solid ${t.accent}`,
           borderRight: `1px solid ${t.accent}`,
-          padding: "16px 24px",
+          padding: sectionPad,
         }}
       >
         <Slider
@@ -111,7 +131,7 @@ export function EstimateCard({ quote, answers, onSave }: EstimateCardProps) {
           borderLeft: `1px solid ${t.accent}`,
           borderRight: `1px solid ${t.accent}`,
           borderTop: `1px solid ${t.border}`,
-          padding: "16px 24px",
+          padding: sectionPad,
         }}
       >
         <div
@@ -120,6 +140,8 @@ export function EstimateCard({ quote, answers, onSave }: EstimateCardProps) {
             justifyContent: "space-between",
             alignItems: "center",
             marginBottom: 12,
+            flexWrap: "wrap",
+            gap: 8,
           }}
         >
           <Label>Deposit Rate</Label>
@@ -153,7 +175,13 @@ export function EstimateCard({ quote, answers, onSave }: EstimateCardProps) {
             />
           </div>
         )}
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr",
+            gap: 10,
+          }}
+        >
           {[
             { label: `Deposit (${depositPct}%)`, val: depositAmt, color: t.success },
             { label: "Balance Due", val: balanceAmt, color: t.warn },
@@ -201,7 +229,7 @@ export function EstimateCard({ quote, answers, onSave }: EstimateCardProps) {
             onClick={() => setView(tab)}
             style={{
               flex: 1,
-              padding: "10px 0",
+              padding: "12px 0",
               background: view === tab ? t.accentDim : "transparent",
               border: "none",
               borderBottom: view === tab ? `2px solid ${t.accent}` : "2px solid transparent",
@@ -212,6 +240,7 @@ export function EstimateCard({ quote, answers, onSave }: EstimateCardProps) {
               fontFamily: mono,
               textTransform: "uppercase",
               transition: "all 0.15s",
+              minHeight: 44,
             }}
           >
             {tab}
@@ -224,7 +253,7 @@ export function EstimateCard({ quote, answers, onSave }: EstimateCardProps) {
           background: t.surface,
           borderLeft: `1px solid ${t.accent}`,
           borderRight: `1px solid ${t.accent}`,
-          padding: "20px 24px",
+          padding: isMobile ? "16px" : "20px 24px",
           minHeight: 140,
         }}
       >
@@ -285,7 +314,13 @@ export function EstimateCard({ quote, answers, onSave }: EstimateCardProps) {
         {view === "market" && (
           <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
             <Label>{answers.county?.toUpperCase()} County Market Rates</Label>
-            <div style={{ display: "flex", gap: 10 }}>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: isMobile ? "column" : "row",
+                gap: 10,
+              }}
+            >
               {(
                 [
                   ["Market Low", fmt(quote.marketLow)],
@@ -338,7 +373,7 @@ export function EstimateCard({ quote, answers, onSave }: EstimateCardProps) {
           borderRight: `1px solid ${t.accent}`,
           borderTop: `1px solid ${t.border}`,
           borderRadius: "0 0 16px 16px",
-          padding: "20px 24px",
+          padding: isMobile ? "16px" : "20px 24px",
         }}
       >
         <Label>Send Estimate</Label>
@@ -352,11 +387,12 @@ export function EstimateCard({ quote, answers, onSave }: EstimateCardProps) {
                 background: t.bgAlt,
                 border: `1px solid ${t.border}`,
                 borderRadius: 8,
-                padding: "10px 14px",
+                padding: "12px 14px",
                 color: t.text,
                 fontSize: 14,
                 fontFamily: sans,
                 outline: "none",
+                minHeight: 44,
               }}
             />
             <input
@@ -367,11 +403,12 @@ export function EstimateCard({ quote, answers, onSave }: EstimateCardProps) {
                 background: t.bgAlt,
                 border: `1px solid ${t.border}`,
                 borderRadius: 8,
-                padding: "10px 14px",
+                padding: "12px 14px",
                 color: t.text,
                 fontSize: 14,
                 fontFamily: sans,
                 outline: "none",
+                minHeight: 44,
               }}
             />
             <div style={{ display: "flex", gap: 8, marginTop: 4 }}>
