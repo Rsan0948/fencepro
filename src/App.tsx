@@ -34,9 +34,14 @@ function buildAbsoluteUrl(path: string): string {
   return `${window.location.origin}${path}`;
 }
 
+function newInfoToastId(): string {
+  return `t_info_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`;
+}
+
 export default function FenceProApp() {
   const [screen, setScreen] = useState<Screen>("dashboard");
-  const [projects, setProjects] = useState<Project[]>(() => loadProjects(data.projects));
+  const [initialLoad] = useState(() => loadProjects(data.projects));
+  const [projects, setProjects] = useState<Project[]>(initialLoad.projects);
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
   const [invoiceProjectId, setInvoiceProjectId] = useState<string | null>(null);
   const [tab, setTab] = useState<Tab>("dashboard");
@@ -51,6 +56,20 @@ export default function FenceProApp() {
   useEffect(() => {
     saveProjects(projects);
   }, [projects]);
+
+  useEffect(() => {
+    if (initialLoad.recovered) {
+      setToasts((prev) => [
+        ...prev,
+        {
+          id: newInfoToastId(),
+          kind: "info",
+          title: "Saved data was unreadable",
+          body: "Loaded the default projects instead.",
+        },
+      ]);
+    }
+  }, [initialLoad]);
 
   useEffect(() => {
     function handle(sessionId: string) {
@@ -98,7 +117,13 @@ export default function FenceProApp() {
         .then((result) => {
           setToasts((prev) => [
             ...prev,
-            { id: `t_${result.id}`, emailId: result.id, subject: tpl.subject, to: recipient },
+            {
+              id: `t_${result.id}`,
+              kind: "email",
+              emailId: result.id,
+              subject: tpl.subject,
+              to: recipient,
+            },
           ]);
         })
         .catch((err: unknown) => {
@@ -117,7 +142,10 @@ export default function FenceProApp() {
   const previewedMessage = previewedEmailId ? getEmail(previewedEmailId) : null;
 
   function pushToast(emailId: string, subject: string, to: string) {
-    setToasts((prev) => [...prev, { id: `t_${emailId}`, emailId, subject, to }]);
+    setToasts((prev) => [
+      ...prev,
+      { id: `t_${emailId}`, kind: "email", emailId, subject, to },
+    ]);
   }
 
   function dismissToast(id: string) {
@@ -125,7 +153,9 @@ export default function FenceProApp() {
   }
 
   function openPreview(toast: ToastEntry) {
-    setPreviewedEmailId(toast.emailId);
+    if (toast.kind === "email") {
+      setPreviewedEmailId(toast.emailId);
+    }
   }
 
   function closePreview() {

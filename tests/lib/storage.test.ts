@@ -58,19 +58,39 @@ afterEach(() => {
 });
 
 describe("storage", () => {
-  it("returns the seed when localStorage is empty", () => {
-    expect(loadProjects(SEED)).toEqual(SEED);
+  it("returns the seed when localStorage is empty (recovered=false)", () => {
+    const result = loadProjects(SEED);
+    expect(result.projects).toEqual(SEED);
+    expect(result.recovered).toBe(false);
   });
 
-  it("round-trips saved projects", () => {
+  it("round-trips saved projects without recovery", () => {
     const persisted: Project[] = [{ ...SEED[0], id: "persisted" }];
     saveProjects(persisted);
-    expect(loadProjects(SEED)).toEqual(persisted);
+    const result = loadProjects(SEED);
+    expect(result.projects).toEqual(persisted);
+    expect(result.recovered).toBe(false);
   });
 
-  it("returns the seed when the schema version does not match", () => {
-    fakeStorage.setItem(KEY, JSON.stringify({ schemaVersion: 99, projects: [{ id: "future" }] }));
-    expect(loadProjects(SEED)).toEqual(SEED);
+  it("recovers from a schema version mismatch", () => {
+    fakeStorage.setItem(KEY, JSON.stringify({ schemaVersion: 99, projects: [] }));
+    const result = loadProjects(SEED);
+    expect(result.projects).toEqual(SEED);
+    expect(result.recovered).toBe(true);
+  });
+
+  it("recovers from corrupted JSON", () => {
+    fakeStorage.setItem(KEY, "{not-valid-json");
+    const result = loadProjects(SEED);
+    expect(result.projects).toEqual(SEED);
+    expect(result.recovered).toBe(true);
+  });
+
+  it("recovers when the stored value is the wrong shape", () => {
+    fakeStorage.setItem(KEY, JSON.stringify(["not", "an", "envelope"]));
+    const result = loadProjects(SEED);
+    expect(result.projects).toEqual(SEED);
+    expect(result.recovered).toBe(true);
   });
 
   it("clearProjects removes the envelope", () => {
