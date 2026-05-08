@@ -18,13 +18,7 @@ describe("Toast auto-dismiss", () => {
 
   it("calls onDismiss after 8 seconds", () => {
     const onDismiss = vi.fn();
-    render(
-      <Toast
-        toasts={[emailToast("t_msg_1")]}
-        onClick={() => {}}
-        onDismiss={onDismiss}
-      />,
-    );
+    render(<Toast toasts={[emailToast("t_msg_1")]} onClick={() => {}} onDismiss={onDismiss} />);
     expect(onDismiss).not.toHaveBeenCalled();
     act(() => {
       vi.advanceTimersByTime(7999);
@@ -39,11 +33,7 @@ describe("Toast auto-dismiss", () => {
   it("clears the timer on unmount before it fires", () => {
     const onDismiss = vi.fn();
     const { unmount } = render(
-      <Toast
-        toasts={[emailToast("t_msg_2")]}
-        onClick={() => {}}
-        onDismiss={onDismiss}
-      />,
+      <Toast toasts={[emailToast("t_msg_2")]} onClick={() => {}} onDismiss={onDismiss} />,
     );
     unmount();
     act(() => {
