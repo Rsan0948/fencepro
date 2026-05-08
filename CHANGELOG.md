@@ -6,6 +6,16 @@ All notable changes to FencePro are documented here. Format follows
 
 ## [Unreleased]
 
+_Nothing yet._
+
+## [0.1.0] - 2026-05-08
+
+First public milestone. Lightweight vertical-SaaS template for fence
+contractors: dashboard, chat-driven estimates, project lifecycle, and a
+fully-typed mock of Stripe checkout + transactional email. Frontend-only,
+mobile-responsive, production-ready as a portfolio reference for the
+adapter pattern + interface-driven services architecture.
+
 ### Added
 
 - **Lane 1 — scaffolding.** Apache 2.0 license, NOTICE, CODE_OF_CONDUCT,
@@ -41,6 +51,21 @@ All notable changes to FencePro are documented here. Format follows
   drives the full chat → send → preview → checkout → pay → status flip
   flow. CI gains a `npm run test:coverage` step (no threshold gate).
   `@vitest/coverage-v8` added to dev dependencies.
+- **Lane 6 — mobile responsive pass.** `src/lib/useIsMobile.ts` hook
+  (matchMedia subscription, single 768px breakpoint, SSR-safe). Every
+  screen renders cleanly down to iPhone SE (375px): Topbar (icon-only
+  nav), Dashboard (stacked donut row, project rows as cards), NewEstimate
+  (inline chat panel instead of fixed-bottom), EstimateCard (stacked
+  header + 1-col deposit grid), ProjectDetail (vertical financial
+  summary), MockCheckout / FinalInvoiceModal / EmailPreviewModal
+  (full-width-with-padding). Touch-target audit bumped HoverBtn,
+  ConfBtn, NavItem, CountyPicker chips, and modal closes to ≥44px.
+  `docs/architecture.md` placeholder sections (Data Layer, Adapter
+  Pattern, Component Layout, Persistence) filled in; new Routing,
+  Responsive Design, and TS strict mode decision sections added.
+- **Lane 7 — release polish.** Screenshot pipeline (`npm run screenshots`)
+  via Playwright, captures desktop + mobile pairs for the README. v0.1.0
+  tagged + GitHub release.
 
 ### Fixed
 
@@ -61,8 +86,8 @@ All notable changes to FencePro are documented here. Format follows
 
 ### Changed
 
-- `src/App.tsx` collapsed from 832 lines (Lane 1 prototype) to a router
-  - state container + flow callbacks.
+- `src/App.tsx` collapsed from 832 lines (Lane 1 prototype) to a router +
+  state container + flow callbacks.
 - `eslint.config.js` no longer excludes `src/App.tsx`; the file lints
   clean alongside the rest of the source tree.
 - `tsconfig.app.json` flips the strict family on. The Lane 1
