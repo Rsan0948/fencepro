@@ -1,7 +1,7 @@
 # Deploying to Hugging Face Spaces
 
 FencePro ships as a static SPA. The live demo runs on a HF Space at
-[huggingface.co/spaces/Rsan0948/fencepro](https://huggingface.co/spaces/Rsan0948/fencepro)
+[huggingface.co/spaces/Rsan0948/FencePro](https://huggingface.co/spaces/Rsan0948/FencePro)
 using HF's [static SDK](https://huggingface.co/docs/hub/spaces-sdks-static):
 HF serves the repo root as a static site, no server runtime, no
 container.
@@ -21,13 +21,13 @@ You only need to do these once.
 Create it manually via the HF web UI before the first deploy.
 
 - Go to [huggingface.co/new-space](https://huggingface.co/new-space).
-- **Owner:** `Rsan0948`. **Space name:** `fencepro`.
+- **Owner:** `Rsan0948`. **Space name:** `FencePro`.
 - **SDK:** Static. (Not Docker, not Streamlit, not Gradio.)
 - License: Apache 2.0.
 - Public visibility.
 
 The script clones from
-`https://huggingface.co/spaces/Rsan0948/fencepro` — if the Space does
+`https://huggingface.co/spaces/Rsan0948/FencePro` — if the Space does
 not exist, the clone fails before anything else runs.
 
 ### 2. The Hugging Face CLI is installed and logged in
@@ -73,7 +73,7 @@ The HF Space rebuilds itself on every push.
 After the script reports `==> done`:
 
 - [ ] Open
-      [huggingface.co/spaces/Rsan0948/fencepro](https://huggingface.co/spaces/Rsan0948/fencepro)
+      [huggingface.co/spaces/Rsan0948/FencePro](https://huggingface.co/spaces/Rsan0948/FencePro)
       — title, emoji, and theme colors come from
       `deploy/hf/README.md`'s frontmatter. The Space should rebuild
       within ~30s.

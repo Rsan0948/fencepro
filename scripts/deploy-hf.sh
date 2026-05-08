@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #
 # Deploy the FencePro static bundle to the HF Space at
-# https://huggingface.co/spaces/Rsan0948/fencepro.
+# https://huggingface.co/spaces/Rsan0948/FencePro.
 #
 # Idempotent — re-runnable for every release. The HF Space must already
 # exist (create it once via the HF web UI with the static SDK). See
@@ -12,7 +12,7 @@ set -euo pipefail
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$REPO_ROOT"
 
-HF_SPACE_URL="https://huggingface.co/spaces/Rsan0948/fencepro"
+HF_SPACE_URL="https://huggingface.co/spaces/Rsan0948/FencePro"
 DEPLOY_DIR=".hf-deploy"
 
 # 1. Verify the HF CLI is installed and authenticated. Bail clearly if not.
