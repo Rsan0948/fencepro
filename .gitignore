@@ -26,3 +26,7 @@ docs/lane_briefs/
 # Optional local data override — keep regional/branding data out of source.
 # See docs/architecture.md §Data Layer.
 src/data/local.ts
+
+# HF Space working clone created by scripts/deploy-hf.sh. Local-only,
+# rebuilt on every deploy. See docs/deploy-hf.md.
+.hf-deploy/

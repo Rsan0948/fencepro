@@ -15,7 +15,8 @@
     "test:watch": "vitest",
     "test:ui": "vitest --ui",
     "test:coverage": "vitest run --coverage",
-    "screenshots": "node scripts/capture-screenshots.mjs"
+    "screenshots": "node scripts/capture-screenshots.mjs",
+    "deploy:hf": "bash scripts/deploy-hf.sh"
   },
   "dependencies": {
     "react": "^19.2.0",
