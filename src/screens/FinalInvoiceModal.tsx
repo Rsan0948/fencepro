@@ -19,6 +19,7 @@ export function FinalInvoiceModal({ project, onClose, onSend }: FinalInvoiceModa
   const adjustTotal = project.adjustments.reduce((s, a) => s + a.amount, 0);
   const revisedTotal = project.finalPrice + adjustTotal;
   const remaining = revisedTotal - project.depositPaid;
+  const sendDisabled = !clientEmail || submitting;
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
@@ -29,7 +30,7 @@ export function FinalInvoiceModal({ project, onClose, onSend }: FinalInvoiceModa
   }, [onClose]);
 
   async function handleSubmit() {
-    if (!clientEmail || submitting) return;
+    if (sendDisabled) return;
     setSubmitting(true);
     try {
       await onSend(project, clientEmail);
@@ -177,6 +178,7 @@ export function FinalInvoiceModal({ project, onClose, onSend }: FinalInvoiceModa
         <HoverBtn
           primary
           onClick={handleSubmit}
+          disabled={sendDisabled}
           style={{ width: "100%", textAlign: "center", padding: "14px 18px", minHeight: 48 }}
         >
           {submitting ? "Sending…" : `Send Final Invoice via Stripe · ${fmt(remaining)}`}
