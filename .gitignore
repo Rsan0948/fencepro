@@ -7,21 +7,20 @@ coverage
 *.local
 .vscode
 .idea
+.ruff_cache/
 
-# HelicOps runtime artifacts (broker cache + per-session audit/evidence/runtime).
-# .helicops/config.toml IS committed; cache/audit/evidence/runtime are not.
-.helicops/cache/
-.helicops/audit/
-.helicops/evidence/
-.helicops/runtime/
+# Local Claude Code / agent tooling (machine-specific, not for public repo).
+# Matches the calc_animator + digital-sangha public-repo hygiene pattern.
+.claude/
+.helicops/
+.mcp.json
+AGENTS.md
+CLAUDE.md
 
 # Internal-only orchestration artifacts. Lane briefs and orchestration
 # planning docs live on disk for the orchestrator + implementation agents
 # to reference, but never ship to the public repo.
 docs/lane_briefs/
-
-# Per-session Claude Code permission/settings state — local-only.
-.claude/settings.local.json
 
 # Optional local data override — keep regional/branding data out of source.
 # See docs/architecture.md §Data Layer.
