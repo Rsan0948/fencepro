@@ -19,8 +19,8 @@ implementation to anyone who wants to take FencePro to production.
 
 ## Interface contract
 
-_Lane 3 ships the typed implementation. The signatures below are the design
-target; treat as authoritative for the wire-up notes._
+The signatures below are authoritative; the live source lives in
+`src/services/payments/types.ts`.
 
 ```ts
 interface PaymentProvider {
@@ -47,11 +47,19 @@ interface PaymentProvider {
 
 `MockStripeProvider` (in `src/services/payments/mock-stripe.ts`):
 
-- `createCheckoutSession` returns a session ID after a short artificial
-  delay; the URL routes to an in-app `/mock-checkout/:id` page that mimics
-  the Stripe-hosted checkout layout
-- The mock checkout page's "pay" button simulates a payment and fires a
-  synthetic webhook handler in-process, flipping the project status
+- `createCheckoutSession` returns a session ID after a 600ms artificial
+  delay (configurable; tests pass `delayMs: 0`). The URL is
+  `/checkout/<id>` where `<id>` looks like `cs_mock_<timestamp><random>`,
+  routing to an in-app `/checkout/:sessionId` page that mimics
+  Stripe-hosted checkout layout.
+- The mock checkout page's "Pay" button calls `markSessionPaid(id)`,
+  which flips the session record and fires every registered synthetic
+  webhook handler in-process.
+- `App.tsx` registers a webhook handler in `useEffect` on mount via
+  `registerPaymentWebhook`. The handler reads the session metadata,
+  flips the project status (`pending → active` for a deposit,
+  `active → paid` for the final balance), clears the project's
+  `checkoutUrl`, and triggers the payment-receipt email + toast.
 
 The mock is intentionally faithful enough that the demo lifecycle
 (estimate → deposit paid → adjustments → final invoice → final paid) feels
@@ -98,5 +106,5 @@ stripe listen --forward-to localhost:8000/api/stripe/webhook
 - Verify webhook signatures (your backend does)
 
 The mock implementation is for demos and development. Do not deploy the
-mock to a public surface where customers might mistake `/mock-checkout`
-for a real payment flow.
+mock to a public surface where customers might mistake `/checkout` for a
+real payment flow.
