@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { fmt } from "../lib/format";
+import { useIsMobile } from "../lib/useIsMobile";
 import { getMockSessionRecord, markSessionPaid } from "../services/payments";
 
 const PAGE_BG = "#f7f7f5";
@@ -13,6 +14,7 @@ const ACCENT = "#635bff";
 export function MockCheckout() {
   const params = useParams<{ sessionId: string }>();
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   const sessionId = params.sessionId ?? "";
   const record = getMockSessionRecord(sessionId);
   const [paying, setPaying] = useState(false);
@@ -26,7 +28,7 @@ export function MockCheckout() {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          padding: 24,
+          padding: 16,
           fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
           color: TEXT,
         }}
@@ -36,7 +38,7 @@ export function MockCheckout() {
             background: CARD_BG,
             border: `1px solid ${BORDER}`,
             borderRadius: 16,
-            padding: 32,
+            padding: isMobile ? 24 : 32,
             maxWidth: 460,
             textAlign: "center",
           }}
@@ -56,6 +58,7 @@ export function MockCheckout() {
               fontSize: 14,
               fontWeight: 600,
               cursor: "pointer",
+              minHeight: 44,
             }}
           >
             Back to FencePro
@@ -78,7 +81,7 @@ export function MockCheckout() {
       style={{
         minHeight: "100vh",
         background: PAGE_BG,
-        padding: "56px 16px",
+        padding: isMobile ? "32px 16px" : "56px 16px",
         fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
         color: TEXT,
       }}
@@ -90,7 +93,7 @@ export function MockCheckout() {
           background: CARD_BG,
           border: `1px solid ${BORDER}`,
           borderRadius: 16,
-          padding: 36,
+          padding: isMobile ? 24 : 36,
           boxShadow: "0 1px 3px rgba(0,0,0,0.06)",
         }}
       >
@@ -128,10 +131,21 @@ export function MockCheckout() {
                 justifyContent: "space-between",
                 padding: "8px 0",
                 fontSize: 13,
+                gap: 12,
               }}
             >
-              <span style={{ color: MUTED }}>{label}</span>
-              <span style={{ color: TEXT, fontWeight: 500 }}>{value}</span>
+              <span style={{ color: MUTED, flexShrink: 0 }}>{label}</span>
+              <span
+                style={{
+                  color: TEXT,
+                  fontWeight: 500,
+                  textAlign: "right",
+                  wordBreak: "break-all",
+                  minWidth: 0,
+                }}
+              >
+                {value}
+              </span>
             </div>
           ))}
         </div>
@@ -167,6 +181,7 @@ export function MockCheckout() {
             fontWeight: 600,
             cursor: alreadyPaid || paying ? "not-allowed" : "pointer",
             transition: "background 0.15s",
+            minHeight: 48,
           }}
         >
           {alreadyPaid
@@ -186,7 +201,8 @@ export function MockCheckout() {
             cursor: "pointer",
             display: "block",
             margin: "18px auto 0",
-            padding: 0,
+            padding: "6px 12px",
+            minHeight: 44,
           }}
         >
           ← Back to FencePro

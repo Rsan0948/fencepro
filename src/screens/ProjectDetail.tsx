@@ -4,6 +4,7 @@ import { HoverBtn } from "../components/atoms/HoverBtn";
 import { Label } from "../components/atoms/Label";
 import { StatusBadge } from "../components/atoms/StatusBadge";
 import { fenceLabel, fmt, fmtD } from "../lib/format";
+import { useIsMobile } from "../lib/useIsMobile";
 import { mono, sans, t } from "../theme";
 import type { Adjustment, Project } from "../types";
 
@@ -18,6 +19,7 @@ export function ProjectDetail({ project, onBack, onInvoice, onAddAdjustment }: P
   const [showAdjust, setShowAdjust] = useState(false);
   const [adjLabel, setAdjLabel] = useState("");
   const [adjAmount, setAdjAmount] = useState("");
+  const isMobile = useIsMobile();
 
   const adjustTotal = project.adjustments.reduce((s, a) => s + a.amount, 0);
   const revisedTotal = project.finalPrice + adjustTotal;
@@ -45,6 +47,7 @@ export function ProjectDetail({ project, onBack, onInvoice, onAddAdjustment }: P
           letterSpacing: "0.08em",
           marginBottom: 20,
           padding: 0,
+          minHeight: 44,
         }}
       >
         ← BACK
@@ -53,17 +56,27 @@ export function ProjectDetail({ project, onBack, onInvoice, onAddAdjustment }: P
       <div
         style={{
           display: "flex",
+          flexDirection: isMobile ? "column" : "row",
           justifyContent: "space-between",
-          alignItems: "flex-start",
+          alignItems: isMobile ? "stretch" : "flex-start",
           marginBottom: 24,
+          gap: 16,
         }}
       >
         <div>
-          <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 10,
+              marginBottom: 6,
+              flexWrap: "wrap",
+            }}
+          >
             <h1
               style={{
                 color: t.text,
-                fontSize: 24,
+                fontSize: isMobile ? 20 : 24,
                 fontWeight: 700,
                 fontFamily: sans,
                 letterSpacing: "-0.02em",
@@ -84,7 +97,14 @@ export function ProjectDetail({ project, onBack, onInvoice, onAddAdjustment }: P
         )}
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 16 }}>
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr",
+          gap: 16,
+          marginBottom: 16,
+        }}
+      >
         <Card>
           <Label>Financial Summary</Label>
           <div style={{ display: "flex", flexDirection: "column", gap: 8, marginTop: 8 }}>
@@ -110,6 +130,7 @@ export function ProjectDetail({ project, onBack, onInvoice, onAddAdjustment }: P
                   justifyContent: "space-between",
                   padding: "7px 0",
                   borderBottom: `1px solid ${t.border}`,
+                  gap: 8,
                 }}
               >
                 <span style={{ color: t.sub, fontSize: 13, fontFamily: sans }}>{r.label}</span>
@@ -139,6 +160,7 @@ export function ProjectDetail({ project, onBack, onInvoice, onAddAdjustment }: P
                   justifyContent: "space-between",
                   padding: "7px 0",
                   borderBottom: `1px solid ${t.border}`,
+                  gap: 8,
                 }}
               >
                 <span style={{ color: t.sub, fontSize: 13, fontFamily: sans }}>{r.label}</span>
@@ -168,9 +190,10 @@ export function ProjectDetail({ project, onBack, onInvoice, onAddAdjustment }: P
               fontSize: 11,
               fontFamily: mono,
               borderRadius: 6,
-              padding: "4px 10px",
+              padding: "8px 14px",
               cursor: "pointer",
               letterSpacing: "0.08em",
+              minHeight: 36,
             }}
           >
             + ADD
@@ -189,6 +212,7 @@ export function ProjectDetail({ project, onBack, onInvoice, onAddAdjustment }: P
               justifyContent: "space-between",
               padding: "8px 0",
               borderBottom: `1px solid ${t.border}`,
+              gap: 8,
             }}
           >
             <span style={{ color: t.sub, fontSize: 13, fontFamily: sans }}>{a.label}</span>
@@ -199,7 +223,14 @@ export function ProjectDetail({ project, onBack, onInvoice, onAddAdjustment }: P
           </div>
         ))}
         {showAdjust && (
-          <div style={{ display: "flex", gap: 8, marginTop: 12 }}>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: isMobile ? "column" : "row",
+              gap: 8,
+              marginTop: 12,
+            }}
+          >
             <input
               value={adjLabel}
               onChange={(e) => setAdjLabel(e.target.value)}
@@ -209,11 +240,12 @@ export function ProjectDetail({ project, onBack, onInvoice, onAddAdjustment }: P
                 background: t.bgAlt,
                 border: `1px solid ${t.border}`,
                 borderRadius: 8,
-                padding: "8px 12px",
+                padding: "12px 14px",
                 color: t.text,
                 fontSize: 13,
                 fontFamily: sans,
                 outline: "none",
+                minHeight: 44,
               }}
             />
             <input
@@ -226,14 +258,19 @@ export function ProjectDetail({ project, onBack, onInvoice, onAddAdjustment }: P
                 background: t.bgAlt,
                 border: `1px solid ${t.border}`,
                 borderRadius: 8,
-                padding: "8px 12px",
+                padding: "12px 14px",
                 color: t.text,
                 fontSize: 13,
                 fontFamily: mono,
                 outline: "none",
+                minHeight: 44,
               }}
             />
-            <HoverBtn primary onClick={addAdjustment} style={{ padding: "8px 14px" }}>
+            <HoverBtn
+              primary
+              onClick={addAdjustment}
+              style={{ padding: "12px 18px", textAlign: "center" }}
+            >
               Add
             </HoverBtn>
           </div>
