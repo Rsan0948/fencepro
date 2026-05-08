@@ -8,6 +8,7 @@ import { ProjectRow } from "../components/projects/ProjectRow";
 import { DefaultsBanner } from "../components/system/DefaultsBanner";
 import { data } from "../data";
 import { fmt } from "../lib/format";
+import { useIsMobile } from "../lib/useIsMobile";
 import { mono, sans, t } from "../theme";
 import type { Project } from "../types";
 
@@ -19,6 +20,7 @@ export interface DashboardProps {
 
 export function Dashboard({ projects, onProjectClick, onNewEstimate }: DashboardProps) {
   const [tableExpanded, setTableExpanded] = useState(false);
+  const isMobile = useIsMobile();
 
   const currentYear = new Date().getFullYear();
   const ytd = projects.filter((p) => new Date(p.createdAt).getFullYear() === currentYear);
@@ -48,6 +50,8 @@ export function Dashboard({ projects, onProjectClick, onNewEstimate }: Dashboard
 
   const totalDonut = totalRevenue + activeRevenue + pendingRevenue || 1;
   const displayProjects = tableExpanded ? ytd : ytd.slice(0, 4);
+  const donutSize = isMobile ? 110 : 140;
+  const donutStroke = isMobile ? 13 : 16;
 
   return (
     <div style={{ padding: "0 0 40px" }}>
@@ -59,9 +63,10 @@ export function Dashboard({ projects, onProjectClick, onNewEstimate }: Dashboard
           justifyContent: "space-between",
           alignItems: "flex-end",
           marginBottom: 28,
+          gap: 12,
         }}
       >
-        <div>
+        <div style={{ minWidth: 0 }}>
           <div
             style={{
               color: t.muted,
@@ -76,7 +81,7 @@ export function Dashboard({ projects, onProjectClick, onNewEstimate }: Dashboard
           <h1
             style={{
               color: t.text,
-              fontSize: 28,
+              fontSize: isMobile ? 22 : 28,
               fontWeight: 700,
               letterSpacing: "-0.02em",
               fontFamily: sans,
@@ -90,12 +95,19 @@ export function Dashboard({ projects, onProjectClick, onNewEstimate }: Dashboard
         </HoverBtn>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1.4fr", gap: 16, marginBottom: 16 }}>
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: isMobile ? "1fr" : "1fr 1.4fr",
+          gap: 16,
+          marginBottom: 16,
+        }}
+      >
         <Card>
           <Label>Account Overview</Label>
           <div style={{ display: "flex", alignItems: "center", gap: 20, marginTop: 8 }}>
             <div style={{ position: "relative", flexShrink: 0 }}>
-              <DonutChart segments={donutSegs} size={140} stroke={16} />
+              <DonutChart segments={donutSegs} size={donutSize} stroke={donutStroke} />
               <div
                 style={{
                   position: "absolute",
@@ -116,7 +128,7 @@ export function Dashboard({ projects, onProjectClick, onNewEstimate }: Dashboard
                 </div>
               </div>
             </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 12, flex: 1 }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 12, flex: 1, minWidth: 0 }}>
               {[
                 { label: "Paid", color: t.success, count: paidCount, rev: totalRevenue },
                 { label: "Active", color: t.warn, count: activeCount, rev: activeRevenue },
@@ -124,9 +136,9 @@ export function Dashboard({ projects, onProjectClick, onNewEstimate }: Dashboard
               ].map((s) => (
                 <div key={s.label}>
                   <div
-                    style={{ display: "flex", justifyContent: "space-between", marginBottom: 3 }}
+                    style={{ display: "flex", justifyContent: "space-between", marginBottom: 3, gap: 8 }}
                   >
-                    <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 6, minWidth: 0 }}>
                       <div
                         style={{
                           width: 7,
@@ -134,6 +146,7 @@ export function Dashboard({ projects, onProjectClick, onNewEstimate }: Dashboard
                           borderRadius: "50%",
                           background: s.color,
                           boxShadow: `0 0 6px ${s.color}`,
+                          flexShrink: 0,
                         }}
                       />
                       <span style={{ color: t.sub, fontSize: 12, fontFamily: sans }}>
@@ -194,7 +207,14 @@ export function Dashboard({ projects, onProjectClick, onNewEstimate }: Dashboard
                 >
                   {s.label.toUpperCase()}
                 </div>
-                <div style={{ color: s.color, fontSize: 20, fontWeight: 700, fontFamily: mono }}>
+                <div
+                  style={{
+                    color: s.color,
+                    fontSize: isMobile ? 16 : 20,
+                    fontWeight: 700,
+                    fontFamily: mono,
+                  }}
+                >
                   {fmt(s.value)}
                 </div>
               </div>
@@ -230,24 +250,26 @@ export function Dashboard({ projects, onProjectClick, onNewEstimate }: Dashboard
           </button>
         </div>
 
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "2fr 1.2fr 1fr 1fr 1fr 0.6fr",
-            gap: 0,
-            padding: "8px 20px",
-            borderBottom: `1px solid ${t.border}`,
-          }}
-        >
-          {["Client", "Type", "Amount", "Status", "Date", ""].map((h) => (
-            <div
-              key={h || "actions"}
-              style={{ color: t.muted, fontSize: 10, fontFamily: mono, letterSpacing: "0.1em" }}
-            >
-              {h}
-            </div>
-          ))}
-        </div>
+        {!isMobile && (
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "2fr 1.2fr 1fr 1fr 1fr 0.6fr",
+              gap: 0,
+              padding: "8px 20px",
+              borderBottom: `1px solid ${t.border}`,
+            }}
+          >
+            {["Client", "Type", "Amount", "Status", "Date", ""].map((h) => (
+              <div
+                key={h || "actions"}
+                style={{ color: t.muted, fontSize: 10, fontFamily: mono, letterSpacing: "0.1em" }}
+              >
+                {h}
+              </div>
+            ))}
+          </div>
+        )}
 
         {displayProjects.map((p, i) => (
           <ProjectRow
