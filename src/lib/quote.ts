@@ -20,9 +20,18 @@ function defaultContext(): QuoteContext {
   return { prices: defaultData.prices, countyRates: defaultData.countyRates };
 }
 
+function clampLinearFeet(raw: number): number {
+  if (!Number.isFinite(raw) || raw < 1) {
+    console.warn(`[fencepro] calcQuote: linearFeet=${String(raw)} clamped to 1`);
+    return 1;
+  }
+  return raw;
+}
+
 export function calcQuote(input: CalcQuoteInput, ctx: QuoteContext = defaultContext()): Quote {
+  const linearFeet = clampLinearFeet(input.linearFeet);
   const prices = ctx.prices[input.fenceType] ?? ctx.prices.wood_privacy;
-  const sections = Math.ceil(input.linearFeet / 8);
+  const sections = Math.ceil(linearFeet / 8);
   let mat = 0;
   const breakdown: BreakdownItem[] = [];
 
@@ -61,7 +70,7 @@ export function calcQuote(input: CalcQuoteInput, ctx: QuoteContext = defaultCont
     breakdown,
     totalHours: hrs,
     sections,
-    marketLow: market.low * input.linearFeet,
-    marketHigh: market.high * input.linearFeet,
+    marketLow: market.low * linearFeet,
+    marketHigh: market.high * linearFeet,
   };
 }

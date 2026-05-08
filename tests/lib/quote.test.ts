@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { calcQuote } from "../../src/lib/quote";
 import type { QuoteContext } from "../../src/lib/quote";
 
@@ -107,5 +107,82 @@ describe("calcQuote", () => {
     expect(q.breakdown.length).toBeGreaterThan(0);
     expect(q.materialCost).toBeGreaterThan(0);
     expect(q.totalCost).toBe(q.materialCost + q.laborCost);
+  });
+});
+
+describe("calcQuote linearFeet clamp (v0.1.1 hardening)", () => {
+  let warnSpy: ReturnType<typeof vi.spyOn>;
+
+  beforeEach(() => {
+    warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    warnSpy.mockRestore();
+  });
+
+  it("clamps zero to 1 and warns", () => {
+    const q = calcQuote(
+      {
+        fenceType: "wood_privacy",
+        linearFeet: 0,
+        heightFt: 6,
+        employees: 2,
+        hourlyWage: 22,
+        county: "Premium",
+      },
+      ctx,
+    );
+    expect(q.marketLow).toBe(50);
+    expect(q.marketHigh).toBe(80);
+    expect(warnSpy).toHaveBeenCalledTimes(1);
+  });
+
+  it("clamps negative input to 1 and warns", () => {
+    const q = calcQuote(
+      {
+        fenceType: "chain_link",
+        linearFeet: -50,
+        heightFt: 4,
+        employees: 1,
+        hourlyWage: 20,
+        county: "Central",
+      },
+      ctx,
+    );
+    expect(q.marketLow).toBe(24);
+    expect(warnSpy).toHaveBeenCalledTimes(1);
+  });
+
+  it("clamps NaN input to 1 (Number.isFinite guard)", () => {
+    const q = calcQuote(
+      {
+        fenceType: "vinyl",
+        linearFeet: Number.NaN,
+        heightFt: 6,
+        employees: 1,
+        hourlyWage: 20,
+        county: "Central",
+      },
+      ctx,
+    );
+    expect(Number.isFinite(q.marketLow)).toBe(true);
+    expect(q.marketLow).toBe(24);
+    expect(warnSpy).toHaveBeenCalledTimes(1);
+  });
+
+  it("does not warn for normal positive linearFeet", () => {
+    calcQuote(
+      {
+        fenceType: "wood_privacy",
+        linearFeet: 50,
+        heightFt: 6,
+        employees: 1,
+        hourlyWage: 20,
+        county: "Central",
+      },
+      ctx,
+    );
+    expect(warnSpy).not.toHaveBeenCalled();
   });
 });
