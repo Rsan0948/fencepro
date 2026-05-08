@@ -51,6 +51,8 @@ export function EstimateCard({ quote, answers, onSave }: EstimateCardProps) {
   const sectionPad = isMobile ? "14px 16px" : "16px 24px";
   const headerPad = isMobile ? "16px 16px" : "20px 24px";
 
+  const sendDisabled = !clientName.trim() || !clientEmail.trim() || sent;
+
   return (
     <div style={{ animation: "fadeSlideUp 0.5s ease" }}>
       <div
@@ -414,21 +416,20 @@ export function EstimateCard({ quote, answers, onSave }: EstimateCardProps) {
             <div style={{ display: "flex", gap: 8, marginTop: 4 }}>
               <ConfBtn
                 onClick={() => {
-                  if (clientName && clientEmail) {
-                    setSent(true);
-                    onSave?.({
-                      clientName,
-                      clientEmail,
-                      finalPrice,
-                      depositAmt,
-                      depositPct,
-                      margin,
-                      answers,
-                      quote,
-                    });
-                  }
+                  setSent(true);
+                  onSave?.({
+                    clientName,
+                    clientEmail,
+                    finalPrice,
+                    depositAmt,
+                    depositPct,
+                    margin,
+                    answers,
+                    quote,
+                  });
                 }}
                 label={`Send Estimate · Deposit ${fmt(depositAmt)}`}
+                disabled={sendDisabled}
               />
             </div>
           </div>

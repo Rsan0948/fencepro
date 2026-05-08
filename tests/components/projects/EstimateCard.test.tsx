@@ -95,4 +95,28 @@ describe("EstimateCard", () => {
     renderCard();
     expect(screen.getByText(/Central Co\. · Wood Privacy · 100 lin ft/i)).toBeInTheDocument();
   });
+
+  it("renders the Send button disabled when both fields are empty", () => {
+    renderCard();
+    const sendBtn = screen.getByRole("button", { name: /send estimate/i });
+    expect(sendBtn).toBeDisabled();
+  });
+
+  it("keeps Send disabled when only the email is filled", async () => {
+    const user = userEvent.setup();
+    renderCard();
+    await user.type(screen.getByPlaceholderText(/client email/i), "only-email@example.com");
+    expect(screen.getByRole("button", { name: /send estimate/i })).toBeDisabled();
+  });
+
+  it("enables Send only when both name and email are filled", async () => {
+    const user = userEvent.setup();
+    renderCard();
+    const sendBtn = screen.getByRole("button", { name: /send estimate/i });
+    expect(sendBtn).toBeDisabled();
+    await user.type(screen.getByPlaceholderText(/client name/i), "Alice Co");
+    expect(sendBtn).toBeDisabled();
+    await user.type(screen.getByPlaceholderText(/client email/i), "alice@example.com");
+    expect(sendBtn).toBeEnabled();
+  });
 });
