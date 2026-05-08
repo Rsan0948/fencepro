@@ -128,7 +128,9 @@ export function Dashboard({ projects, onProjectClick, onNewEstimate }: Dashboard
                 </div>
               </div>
             </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 12, flex: 1, minWidth: 0 }}>
+            <div
+              style={{ display: "flex", flexDirection: "column", gap: 12, flex: 1, minWidth: 0 }}
+            >
               {[
                 { label: "Paid", color: t.success, count: paidCount, rev: totalRevenue },
                 { label: "Active", color: t.warn, count: activeCount, rev: activeRevenue },
@@ -136,7 +138,12 @@ export function Dashboard({ projects, onProjectClick, onNewEstimate }: Dashboard
               ].map((s) => (
                 <div key={s.label}>
                   <div
-                    style={{ display: "flex", justifyContent: "space-between", marginBottom: 3, gap: 8 }}
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      marginBottom: 3,
+                      gap: 8,
+                    }}
                   >
                     <div style={{ display: "flex", alignItems: "center", gap: 6, minWidth: 0 }}>
                       <div

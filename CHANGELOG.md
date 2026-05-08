@@ -62,7 +62,7 @@ All notable changes to FencePro are documented here. Format follows
 ### Changed
 
 - `src/App.tsx` collapsed from 832 lines (Lane 1 prototype) to a router
-  + state container + flow callbacks.
+  - state container + flow callbacks.
 - `eslint.config.js` no longer excludes `src/App.tsx`; the file lints
   clean alongside the rest of the source tree.
 - `tsconfig.app.json` flips the strict family on. The Lane 1

@@ -32,7 +32,12 @@ export function ProjectRow({ project, onClick, last }: ProjectRowProps) {
         }}
       >
         <div
-          style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12 }}
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "flex-start",
+            gap: 12,
+          }}
         >
           <div
             style={{
