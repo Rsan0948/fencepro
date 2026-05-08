@@ -1,3 +1,5 @@
+import type { MouseEvent } from "react";
+import { useNavigate } from "react-router-dom";
 import { useIsMobile } from "../../lib/useIsMobile";
 import type { MockEmailMessage } from "../../services/email";
 import { mono, sans, t } from "../../theme";
@@ -9,7 +11,26 @@ export interface EmailPreviewModalProps {
 
 export function EmailPreviewModal({ message, onClose }: EmailPreviewModalProps) {
   const isMobile = useIsMobile();
+  const navigate = useNavigate();
   if (!message) return null;
+
+  function handleHtmlClick(e: MouseEvent<HTMLDivElement>) {
+    const anchor = (e.target as HTMLElement).closest("a");
+    if (!anchor) return;
+    const href = anchor.getAttribute("href");
+    if (!href) return;
+    let target: URL;
+    try {
+      target = new URL(href, window.location.origin);
+    } catch {
+      return;
+    }
+    if (target.origin !== window.location.origin) return;
+    e.preventDefault();
+    onClose();
+    navigate(`${target.pathname}${target.search}${target.hash}`);
+  }
+
   return (
     <div
       onClick={onClose}
@@ -105,6 +126,7 @@ export function EmailPreviewModal({ message, onClose }: EmailPreviewModalProps) 
           </button>
         </div>
         <div
+          onClick={handleHtmlClick}
           style={{
             flex: 1,
             overflowY: "auto",

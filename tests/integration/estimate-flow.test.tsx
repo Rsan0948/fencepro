@@ -92,20 +92,18 @@ describe("integration: estimate → pay → receipt happy path", () => {
     const payLink = screen.getByRole("link", { name: /pay deposit/i });
     expect(payLink).toHaveAttribute("href", expect.stringMatching(/\/checkout\/cs_mock_/));
 
-    // Close preview and head back to the dashboard via the topbar nav.
-    // NavItem renders icon + label inline so the button's accessible name is
-    // the concatenation (e.g. "DSHDASH"); match the label as a substring.
-    await user.click(screen.getByRole("button", { name: /close preview/i }));
-    await user.click(screen.getByRole("button", { name: /dash/i }));
-
-    const simulateLink = await screen.findByRole("link", { name: /simulate payment/i }, LONG_WAIT);
-    await user.click(simulateLink);
-
-    // Now on MockCheckout — pay.
-    await screen.findByText(/hosted checkout/i);
+    // Bug 3 hardening: clicking the anchor must dispatch via React Router
+    // (preview closes and MockCheckout mounts, no full reload).
+    await user.click(payLink);
+    await screen.findByText(/hosted checkout/i, undefined, LONG_WAIT);
+    expect(screen.queryByText(/email preview/i)).not.toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: /^pay /i }));
 
-    // Back on the dashboard, the project is now active.
+    // Pay navigates back to "/" but App's internal screen is still "estimate".
+    // Switch to the dashboard tab so the project surfaces (NavItem renders
+    // icon + label inline so the accessible name contains "DASH").
+    await user.click(await screen.findByRole("button", { name: /dash/i }, LONG_WAIT));
+
     await waitFor(() => {
       expect(screen.getByText("Integration Test Client")).toBeInTheDocument();
     }, LONG_WAIT);
