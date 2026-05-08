@@ -8,6 +8,57 @@ All notable changes to FencePro are documented here. Format follows
 
 _Nothing yet._
 
+## [0.1.1] - 2026-05-08
+
+Hardening patch built on top of v0.1.0. Closes nine P0 issues found
+during pre-release manual testing of the chat → estimate → checkout
+→ receipt flow. No new features. No breaking surface changes for
+users of the typed services interfaces; `loadProjects`'s return shape
+changed from `Project[]` to `{ projects, recovered }` for internal
+callers.
+
+### Fixed
+
+- **EstimateCard send button** is now visually disabled (and a
+  click no-op) until both client name and client email are filled.
+  `ConfBtn` gains a `disabled?: boolean` prop.
+- **FinalInvoiceModal** closes on Escape and on dim-backdrop click
+  (clicks on the inner card stop propagation). `MockCheckout` also
+  closes on Escape (navigates to `/`).
+- **EmailPreviewModal** intercepts clicks on internal anchors in
+  the rendered HTML and dispatches via React Router instead of
+  triggering a full-page reload. External anchors fall through.
+- **localStorage corruption** — `loadProjects` returns
+  `{ projects, recovered }`. When `recovered=true` (JSON parse
+  failure or schema mismatch), `App` surfaces a `(SYSTEM)` info
+  toast: "Saved data was unreadable — loaded the default projects
+  instead."
+- **`calcQuote` county-rate fallback** — the data loader now
+  asserts `data.countyRates.default` exists at module load time and
+  throws with a helpful message naming `src/data/local.ts` if a
+  local override drops it.
+- **`calcQuote` linearFeet clamp** — non-finite, zero, or negative
+  inputs clamp to 1 with a `console.warn`. Prevents NaN propagation
+  into market low/high and section math.
+- **Webhook receipt-email failures** no longer disappear into a
+  silent `console.error`. They surface a `(SYSTEM)` info toast
+  warning that the payment was recorded but the receipt did not
+  queue.
+- **Already-paid `MockCheckout`** sessions render a dedicated
+  "Payment received" panel (centered card with the paid amount and
+  a Back to FencePro button) instead of the full hosted-checkout
+  layout with a disabled Pay button.
+- **Toast queue** is now bounded to 4 visible entries (oldest drops
+  on overflow) and every toast auto-dismisses after 8000ms via a
+  per-toast `setTimeout` cleared on unmount or early dismiss.
+
+### Changed
+
+- `ToastEntry` is now a discriminated union of `email` and `info`
+  kinds. Email toasts retain the click-to-preview affordance;
+  info toasts render a `(SYSTEM)` tag with a title and optional
+  body and dismiss without opening a preview modal.
+
 ## [0.1.0] - 2026-05-08
 
 First public milestone. Lightweight vertical-SaaS template for fence
