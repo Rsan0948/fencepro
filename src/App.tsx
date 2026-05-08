@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Route, Routes } from "react-router-dom";
 import { Topbar } from "./components/nav/Topbar";
 import type { EstimateSavePayload } from "./components/projects/EstimateCard";
@@ -28,6 +28,7 @@ type Screen = "dashboard" | "estimate" | "detail";
 type Tab = "dashboard" | "estimate";
 
 const FROM_ADDRESS = { email: "noreply@fencepro.demo", name: data.company.name };
+const TOAST_CAP = 4;
 
 function buildAbsoluteUrl(path: string): string {
   if (typeof window === "undefined") return path;
@@ -36,6 +37,11 @@ function buildAbsoluteUrl(path: string): string {
 
 function newInfoToastId(): string {
   return `t_info_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`;
+}
+
+function appendToastCapped(prev: ToastEntry[], next: ToastEntry): ToastEntry[] {
+  const combined = [...prev, next];
+  return combined.length > TOAST_CAP ? combined.slice(combined.length - TOAST_CAP) : combined;
 }
 
 export default function FenceProApp() {
@@ -59,15 +65,14 @@ export default function FenceProApp() {
 
   useEffect(() => {
     if (initialLoad.recovered) {
-      setToasts((prev) => [
-        ...prev,
-        {
+      setToasts((prev) =>
+        appendToastCapped(prev, {
           id: newInfoToastId(),
           kind: "info",
           title: "Saved data was unreadable",
           body: "Loaded the default projects instead.",
-        },
-      ]);
+        }),
+      );
     }
   }, [initialLoad]);
 
@@ -115,19 +120,26 @@ export default function FenceProApp() {
           metadata: { projectId, kind: "payment-receipt" },
         })
         .then((result) => {
-          setToasts((prev) => [
-            ...prev,
-            {
+          setToasts((prev) =>
+            appendToastCapped(prev, {
               id: `t_${result.id}`,
               kind: "email",
               emailId: result.id,
               subject: tpl.subject,
               to: recipient,
-            },
-          ]);
+            }),
+          );
         })
         .catch((err: unknown) => {
           console.error("[fencepro] receipt send failed", err);
+          setToasts((prev) =>
+            appendToastCapped(prev, {
+              id: newInfoToastId(),
+              kind: "info",
+              title: "Receipt email failed to send",
+              body: "The payment was recorded but the receipt did not queue.",
+            }),
+          );
         });
     }
     return registerPaymentWebhook(handle);
@@ -142,15 +154,14 @@ export default function FenceProApp() {
   const previewedMessage = previewedEmailId ? getEmail(previewedEmailId) : null;
 
   function pushToast(emailId: string, subject: string, to: string) {
-    setToasts((prev) => [
-      ...prev,
-      { id: `t_${emailId}`, kind: "email", emailId, subject, to },
-    ]);
+    setToasts((prev) =>
+      appendToastCapped(prev, { id: `t_${emailId}`, kind: "email", emailId, subject, to }),
+    );
   }
 
-  function dismissToast(id: string) {
+  const dismissToast = useCallback((id: string) => {
     setToasts((prev) => prev.filter((entry) => entry.id !== id));
-  }
+  }, []);
 
   function openPreview(toast: ToastEntry) {
     if (toast.kind === "email") {
