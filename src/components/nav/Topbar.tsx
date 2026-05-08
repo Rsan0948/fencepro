@@ -1,4 +1,5 @@
 import { data } from "../../data";
+import { useIsMobile } from "../../lib/useIsMobile";
 import { mono, t } from "../../theme";
 import { NavItem } from "./NavItem";
 
@@ -10,13 +11,14 @@ export interface TopbarProps {
 }
 
 export function Topbar({ tab, onSwitchTab }: TopbarProps) {
+  const isMobile = useIsMobile();
   return (
     <div
       style={{
         width: "100%",
         borderBottom: `1px solid ${t.border}`,
         background: t.surface,
-        padding: "0 24px",
+        padding: isMobile ? "0 14px" : "0 24px",
         display: "flex",
         alignItems: "center",
         justifyContent: "space-between",
@@ -38,6 +40,7 @@ export function Topbar({ tab, onSwitchTab }: TopbarProps) {
             alignItems: "center",
             justifyContent: "center",
             fontSize: 16,
+            flexShrink: 0,
           }}
         >
           {"\u{1FAB5}"}
@@ -57,26 +60,43 @@ export function Topbar({ tab, onSwitchTab }: TopbarProps) {
           label="DASH"
           active={tab === "dashboard"}
           onClick={() => onSwitchTab("dashboard")}
+          compact={isMobile}
         />
         <NavItem
           icon="EST"
           label="ESTIMATE"
           active={tab === "estimate"}
           onClick={() => onSwitchTab("estimate")}
+          compact={isMobile}
         />
       </div>
-      <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+      {!isMobile && (
+        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+          <div
+            style={{
+              width: 7,
+              height: 7,
+              borderRadius: "50%",
+              background: t.success,
+              boxShadow: `0 0 6px ${t.success}`,
+            }}
+          />
+          <span style={{ color: t.muted, fontSize: 11, fontFamily: mono }}>LIVE</span>
+        </div>
+      )}
+      {isMobile && (
         <div
           style={{
-            width: 7,
-            height: 7,
+            width: 8,
+            height: 8,
             borderRadius: "50%",
             background: t.success,
             boxShadow: `0 0 6px ${t.success}`,
+            flexShrink: 0,
           }}
+          aria-label="LIVE"
         />
-        <span style={{ color: t.muted, fontSize: 11, fontFamily: mono }}>LIVE</span>
-      </div>
+      )}
     </div>
   );
 }

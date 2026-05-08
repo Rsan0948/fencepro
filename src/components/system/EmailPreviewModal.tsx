@@ -1,3 +1,4 @@
+import { useIsMobile } from "../../lib/useIsMobile";
 import type { MockEmailMessage } from "../../services/email";
 import { mono, sans, t } from "../../theme";
 
@@ -7,6 +8,7 @@ export interface EmailPreviewModalProps {
 }
 
 export function EmailPreviewModal({ message, onClose }: EmailPreviewModalProps) {
+  const isMobile = useIsMobile();
   if (!message) return null;
   return (
     <div
@@ -16,10 +18,10 @@ export function EmailPreviewModal({ message, onClose }: EmailPreviewModalProps) 
         inset: 0,
         background: "rgba(8,8,13,0.85)",
         display: "flex",
-        alignItems: "center",
+        alignItems: isMobile ? "stretch" : "center",
         justifyContent: "center",
         zIndex: 110,
-        padding: 20,
+        padding: isMobile ? 16 : 20,
       }}
     >
       <div
@@ -30,7 +32,7 @@ export function EmailPreviewModal({ message, onClose }: EmailPreviewModalProps) 
           borderRadius: 16,
           width: "100%",
           maxWidth: 640,
-          maxHeight: "90vh",
+          maxHeight: isMobile ? "100%" : "90vh",
           display: "flex",
           flexDirection: "column",
           overflow: "hidden",
@@ -39,7 +41,7 @@ export function EmailPreviewModal({ message, onClose }: EmailPreviewModalProps) 
       >
         <div
           style={{
-            padding: "18px 22px",
+            padding: isMobile ? "14px 16px" : "18px 22px",
             borderBottom: `1px solid ${t.border}`,
             display: "flex",
             justifyContent: "space-between",
@@ -70,7 +72,14 @@ export function EmailPreviewModal({ message, onClose }: EmailPreviewModalProps) 
             >
               {message.subject}
             </div>
-            <div style={{ color: t.muted, fontSize: 12, fontFamily: mono }}>
+            <div
+              style={{
+                color: t.muted,
+                fontSize: 12,
+                fontFamily: mono,
+                wordBreak: "break-word",
+              }}
+            >
               From {message.from.name} &lt;{message.from.email}&gt; → {message.to}
             </div>
           </div>
@@ -84,6 +93,12 @@ export function EmailPreviewModal({ message, onClose }: EmailPreviewModalProps) 
               fontSize: 22,
               cursor: "pointer",
               lineHeight: 1,
+              minWidth: 44,
+              minHeight: 44,
+              flexShrink: 0,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
             }}
           >
             ×

@@ -1,3 +1,4 @@
+import { useIsMobile } from "../../lib/useIsMobile";
 import { mono, sans, t } from "../../theme";
 
 export interface ToastEntry {
@@ -14,18 +15,20 @@ export interface ToastProps {
 }
 
 export function Toast({ toasts, onClick, onDismiss }: ToastProps) {
+  const isMobile = useIsMobile();
   if (toasts.length === 0) return null;
   return (
     <div
       style={{
         position: "fixed",
-        bottom: 24,
-        right: 24,
+        bottom: 16,
+        right: 16,
+        left: isMobile ? 16 : undefined,
         display: "flex",
         flexDirection: "column",
         gap: 10,
         zIndex: 90,
-        maxWidth: 360,
+        maxWidth: isMobile ? "none" : 360,
       }}
     >
       {toasts.map((toast) => (
@@ -94,10 +97,15 @@ export function Toast({ toasts, onClick, onDismiss }: ToastProps) {
               background: "transparent",
               border: "none",
               color: t.muted,
-              fontSize: 16,
+              fontSize: 18,
               cursor: "pointer",
               padding: 0,
               lineHeight: 1,
+              minWidth: 44,
+              minHeight: 44,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
             }}
           >
             ×

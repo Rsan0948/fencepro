@@ -5,12 +5,14 @@ export interface NavItemProps {
   label: string;
   active: boolean;
   onClick: () => void;
+  compact?: boolean;
 }
 
-export function NavItem({ icon, label, active, onClick }: NavItemProps) {
+export function NavItem({ icon, label, active, onClick, compact = false }: NavItemProps) {
   return (
     <button
       onClick={onClick}
+      aria-label={label}
       style={{
         display: "flex",
         flexDirection: "column",
@@ -19,14 +21,17 @@ export function NavItem({ icon, label, active, onClick }: NavItemProps) {
         background: "transparent",
         border: "none",
         cursor: "pointer",
-        padding: "8px 16px",
+        padding: compact ? "8px 12px" : "8px 16px",
         borderRadius: 10,
         transition: "all 0.15s",
         color: active ? t.accent : t.muted,
+        minHeight: 44,
       }}
     >
       <span style={{ fontSize: 18 }}>{icon}</span>
-      <span style={{ fontSize: 10, fontFamily: mono, letterSpacing: "0.08em" }}>{label}</span>
+      {!compact && (
+        <span style={{ fontSize: 10, fontFamily: mono, letterSpacing: "0.08em" }}>{label}</span>
+      )}
       {active && (
         <div
           style={{
