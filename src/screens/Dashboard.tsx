@@ -32,11 +32,21 @@ export function Dashboard({ projects, onProjectClick, onNewEstimate }: Dashboard
   const pendingRevenue = ytd
     .filter((p) => p.status === "pending")
     .reduce((s, p) => s + p.finalPrice, 0);
-  const depositsPaid = ytd.reduce((s, p) => s + (p.depositPaid || 0), 0);
   const adjustmentsTotal = ytd.reduce(
     (s, p) => s + p.adjustments.reduce((a, j) => a + j.amount, 0),
     0,
   );
+
+  // Snapshot semantics: only deposits on still-open projects count as
+  // currently held; deposits on paid projects are already inside their
+  // finalPrice (totalRevenue), so adding both would double-count.
+  const unpaid = ytd.filter((p) => p.status !== "paid");
+  const depositsHeld = unpaid.reduce((s, p) => s + (p.depositPaid || 0), 0);
+  const outstanding = unpaid.reduce((s, p) => {
+    const adj = p.adjustments.reduce((a, j) => a + j.amount, 0);
+    return s + (p.finalPrice + adj - (p.depositPaid || 0));
+  }, 0);
+  const collected = totalRevenue + depositsHeld;
 
   const paidCount = ytd.filter((p) => p.status === "paid").length;
   const activeCount = ytd.filter((p) => p.status === "active").length;
@@ -185,13 +195,9 @@ export function Dashboard({ projects, onProjectClick, onNewEstimate }: Dashboard
           <Label>Revenue YTD - {currentYear}</Label>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginTop: 8 }}>
             {[
-              { label: "Collected", value: totalRevenue + depositsPaid, color: t.success },
-              {
-                label: "Outstanding",
-                value: activeRevenue + pendingRevenue - depositsPaid,
-                color: t.warn,
-              },
-              { label: "Deposits In", value: depositsPaid, color: t.info },
+              { label: "Collected", value: collected, color: t.success },
+              { label: "Outstanding", value: outstanding, color: t.warn },
+              { label: "Deposits In", value: depositsHeld, color: t.info },
               { label: "Adjustments", value: adjustmentsTotal, color: t.accent },
             ].map((s) => (
               <div

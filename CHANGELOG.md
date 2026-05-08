@@ -6,6 +6,10 @@ All notable changes to FencePro are documented here. Format follows
 
 ## [Unreleased]
 
+### Fixed
+
+- **Dashboard "Outstanding" / "Collected" math.** Previously summed `depositPaid` across _all_ projects (including paid), then subtracted from active + pending revenue or added to total revenue. Once enough projects were paid, paid-projects' deposits exceeded active+pending revenue and `Outstanding` went negative; `Collected` simultaneously double-counted paid projects' deposits (their finalPrice already contains the deposit). Reformulated as a snapshot: `depositsHeld` is deposits on unpaid projects only; `outstanding = sum(finalPrice + adjustments - depositPaid)` over unpaid; `collected = totalRevenue + depositsHeld`. Adjustments are now reflected in Outstanding (a $200 change order on an active project shows up as money owed). `Collected + Outstanding` now equals total contract value, as a coherence check.
+
 ### Added
 
 - **Close project action.** ProjectDetail gains a small `× CLOSE PROJECT` button next to the back affordance. Click prompts a `window.confirm`; on confirm, the project is removed from `projects` state, selection/invoice references are cleared, and navigation returns to the dashboard. Lets reviewers (or the operator) clear out test projects without going through the full deposit-or-final payment flow.
