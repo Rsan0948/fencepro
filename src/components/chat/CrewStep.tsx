@@ -56,16 +56,28 @@ export function CrewStep({ onConfirm }: CrewStepProps) {
           }}
         >
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <span
+            <input
+              type="text"
+              value={m.label ?? ""}
+              onChange={(e) => update(i, { label: e.target.value })}
+              placeholder={`TIER ${i + 1}`}
+              aria-label={`Tier ${i + 1} label`}
               style={{
-                color: t.muted,
-                fontSize: 10,
+                background: "transparent",
+                border: "none",
+                borderBottom: `1px dashed ${t.border}`,
+                color: t.text,
+                fontSize: 11,
                 fontFamily: mono,
                 letterSpacing: "0.12em",
+                textTransform: "uppercase",
+                padding: "2px 4px",
+                outline: "none",
+                flex: 1,
+                minWidth: 0,
+                marginRight: 8,
               }}
-            >
-              TIER {i + 1}
-            </span>
+            />
             {members.length > 1 && (
               <button
                 onClick={() => removeTier(i)}

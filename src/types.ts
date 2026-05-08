@@ -60,6 +60,7 @@ export interface Quote {
 }
 
 export interface CrewMember {
+  label?: string;
   count: number;
   hourlyWage: number;
   hours: number;
