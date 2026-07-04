@@ -1,4 +1,5 @@
 import { useState } from "react";
+import type { KeyboardEvent } from "react";
 import { Link } from "react-router-dom";
 import { fenceLabel, fmt, fmtD } from "../../lib/format";
 import { useIsMobile } from "../../lib/useIsMobile";
@@ -17,10 +18,21 @@ export function ProjectRow({ project, onClick, last }: ProjectRowProps) {
   const isMobile = useIsMobile();
   const total = project.finalPrice + project.adjustments.reduce((s, a) => s + a.amount, 0);
 
+  function handleKeyDown(e: KeyboardEvent<HTMLDivElement>) {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      onClick();
+    }
+  }
+
   if (isMobile) {
     return (
       <div
         onClick={onClick}
+        onKeyDown={handleKeyDown}
+        role="button"
+        tabIndex={0}
+        aria-label={`Open project for ${project.client}`}
         style={{
           padding: "14px 16px",
           borderBottom: last ? "none" : `1px solid ${t.border}`,
@@ -103,8 +115,14 @@ export function ProjectRow({ project, onClick, last }: ProjectRowProps) {
   return (
     <div
       onClick={onClick}
+      onKeyDown={handleKeyDown}
+      role="button"
+      tabIndex={0}
+      aria-label={`Open project for ${project.client}`}
       onMouseEnter={() => setHov(true)}
       onMouseLeave={() => setHov(false)}
+      onFocus={() => setHov(true)}
+      onBlur={() => setHov(false)}
       style={{
         display: "grid",
         gridTemplateColumns: "2fr 1.2fr 1fr 1fr 1fr 0.6fr",

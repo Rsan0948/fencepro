@@ -8,10 +8,25 @@ All notable changes to FencePro are documented here. Format follows
 
 ### Fixed
 
+- **Timezone-safe dates.** Date-only strings (`createdAt`, `paidAt`) were parsed with `new Date("YYYY-MM-DD")`, which reads as UTC midnight and renders as the _previous_ day in any timezone west of UTC — so US users saw every project date off by one, and the dashboard's YTD filter could push a Jan 1 project into the prior year. New `parseISODateLocal()` parses date-only strings as local time (used by `fmtD` and the YTD filter), and new `todayISO()` stamps `createdAt`/`paidAt` with the local calendar date instead of the UTC one. `fmtD` also returns the raw string instead of "Invalid Date" for unparseable input.
+- **Info toasts now dismiss on click.** Their subtitle says "click to dismiss", but clicking the card body was a no-op (only the × worked).
+- **EmailPreviewModal closes on Escape** and carries proper dialog semantics (`role="dialog"`, `aria-modal`), matching FinalInvoiceModal and MockCheckout.
+- **Adjustment input validation.** ProjectDetail's Add button now trims the label and rejects non-finite amounts, so a stray `NaN` can no longer poison revised totals, dashboard math, and the persisted envelope. The button renders disabled until both fields are valid.
+- **Stored-project sanitization.** `loadProjects` rebuilds each stored project field-by-field: non-object entries are dropped, missing `adjustments`/`notes` are defaulted, non-finite numbers coerce to 0, unknown statuses fall back to `pending`, and malformed adjustment entries are filtered. Previously a single hand-edited or partially-written entry inside a valid envelope crashed the dashboard at render time.
+- **`saveProjects` no longer throws** on quota-exceeded or blocked storage (private browsing) — it warns and continues instead of crashing the render commit that triggered the save.
+- **Email format validation.** EstimateCard and FinalInvoiceModal require a plausible email (`user@domain.tld`) before enabling Send, show an inline hint plus warning border while the address is malformed, use `type="email"` inputs, and trim the address before sending.
+- **Silent send failures surface as toasts.** The `handleSaveEstimate` / `handleSendInvoice` catch blocks only logged to the console; they now also push a `(SYSTEM)` info toast so the operator knows no email/payment link was created.
+- **Crew summary pluralization** — the chat transcript no longer says "1 workers" for a single-person crew.
+- **NewEstimate timer cleanup.** Chat-delay `setTimeout`s are tracked and cleared on unmount, so switching tabs mid-conversation no longer leaves orphaned callbacks firing after the screen is gone.
+- **Seed-data lifecycle consistency.** The pending sample project shipped with `depositPaid: 4500`, inflating the dashboard's "Deposits In" tile with money never collected; a pending estimate now starts at 0.
+- **EstimateCard NaN guard** — deposit percentage renders 0 instead of `NaN%` when a quote's total cost is zero.
 - **Dashboard "Outstanding" / "Collected" math.** Previously summed `depositPaid` across _all_ projects (including paid), then subtracted from active + pending revenue or added to total revenue. Once enough projects were paid, paid-projects' deposits exceeded active+pending revenue and `Outstanding` went negative; `Collected` simultaneously double-counted paid projects' deposits (their finalPrice already contains the deposit). Reformulated as a snapshot: `depositsHeld` is deposits on unpaid projects only; `outstanding = sum(finalPrice + adjustments - depositPaid)` over unpaid; `collected = totalRevenue + depositsHeld`. Adjustments are now reflected in Outstanding (a $200 change order on an active project shows up as money owed). `Collected + Outstanding` now equals total contract value, as a coherence check.
 
 ### Added
 
+- **Keyboard-accessible project rows.** Dashboard rows are focusable (`role="button"`, `tabIndex=0`), activate on Enter/Space, and show the hover highlight on keyboard focus.
+- **Time-aware dashboard greeting** — GOOD MORNING / AFTERNOON / EVENING based on the local hour instead of a hardcoded GOOD MORNING.
+- `src/lib/validate.ts` with `isValidEmail()`; new tests covering email validation, local date parsing, and storage sanitization.
 - **Close project action.** ProjectDetail gains a small `× CLOSE PROJECT` button next to the back affordance. Click prompts a `window.confirm`; on confirm, the project is removed from `projects` state, selection/invoice references are cleared, and navigation returns to the dashboard. Lets reviewers (or the operator) clear out test projects without going through the full deposit-or-final payment flow.
 
 ## [0.1.1] - 2026-05-08

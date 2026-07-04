@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { HoverBtn } from "../components/atoms/HoverBtn";
 import { fmt } from "../lib/format";
 import { useIsMobile } from "../lib/useIsMobile";
+import { isValidEmail } from "../lib/validate";
 import { mono, sans, t } from "../theme";
 import type { Project } from "../types";
 
@@ -19,7 +20,8 @@ export function FinalInvoiceModal({ project, onClose, onSend }: FinalInvoiceModa
   const adjustTotal = project.adjustments.reduce((s, a) => s + a.amount, 0);
   const revisedTotal = project.finalPrice + adjustTotal;
   const remaining = revisedTotal - project.depositPaid;
-  const sendDisabled = !clientEmail || submitting;
+  const emailInvalid = clientEmail.trim() !== "" && !isValidEmail(clientEmail);
+  const sendDisabled = !isValidEmail(clientEmail) || submitting;
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
@@ -33,7 +35,7 @@ export function FinalInvoiceModal({ project, onClose, onSend }: FinalInvoiceModa
     if (sendDisabled) return;
     setSubmitting(true);
     try {
-      await onSend(project, clientEmail);
+      await onSend(project, clientEmail.trim());
       onClose();
     } finally {
       setSubmitting(false);
@@ -161,10 +163,11 @@ export function FinalInvoiceModal({ project, onClose, onSend }: FinalInvoiceModa
           value={clientEmail}
           onChange={(e) => setClientEmail(e.target.value)}
           placeholder="Client email address"
+          type="email"
           style={{
             width: "100%",
             background: t.bgAlt,
-            border: `1px solid ${t.border}`,
+            border: `1px solid ${emailInvalid ? t.warn : t.border}`,
             borderRadius: 10,
             padding: "12px 14px",
             color: t.text,
@@ -175,6 +178,11 @@ export function FinalInvoiceModal({ project, onClose, onSend }: FinalInvoiceModa
             minHeight: 44,
           }}
         />
+        {emailInvalid && (
+          <div style={{ color: t.warn, fontSize: 11, fontFamily: sans, margin: "0 0 10px" }}>
+            Enter a valid email address (e.g. client@example.com).
+          </div>
+        )}
         <HoverBtn
           primary
           onClick={handleSubmit}

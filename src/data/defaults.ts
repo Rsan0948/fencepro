@@ -116,7 +116,8 @@ const defaults: LocalData = {
       laborCost: 2500,
       totalCost: 8500,
       depositRate: 0.5,
-      depositPaid: 4500,
+      // Pending = estimate sent, deposit not yet paid — so nothing collected.
+      depositPaid: 0,
       finalPrice: 9000,
       status: "pending",
       createdAt: "2026-04-19",

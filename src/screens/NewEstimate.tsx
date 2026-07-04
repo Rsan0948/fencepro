@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import { ChatBubble } from "../components/chat/ChatBubble";
 import { CountyPicker } from "../components/chat/CountyPicker";
@@ -56,7 +56,7 @@ const STAGES: Stage[] = [
           const totalHeadcount = v.members.reduce((s, m) => s + m.count, 0);
           const summary =
             v.members.length === 1
-              ? `${v.members[0].count} workers @ $${v.members[0].hourlyWage}/hr × ${v.members[0].hours} hrs`
+              ? `${v.members[0].count} ${v.members[0].count === 1 ? "worker" : "workers"} @ $${v.members[0].hourlyWage}/hr × ${v.members[0].hours} hrs`
               : `${totalHeadcount} workers across ${v.members.length} tiers`;
           next(v, summary);
         }}
@@ -88,15 +88,33 @@ export function NewEstimate({ onSave }: NewEstimateProps) {
   const [estimate, setEstimate] = useState<EstimateState | null>(null);
   const [renderKey, setRenderKey] = useState(0);
   const bottomRef = useRef<HTMLDivElement | null>(null);
+  const timersRef = useRef<Set<number>>(new Set());
+
+  // Chat-delay timers scheduled from event handlers; cleared on unmount so
+  // a tab switch mid-conversation doesn't leave orphaned callbacks running.
+  const schedule = useCallback((fn: () => void, ms: number) => {
+    const id = window.setTimeout(() => {
+      timersRef.current.delete(id);
+      fn();
+    }, ms);
+    timersRef.current.add(id);
+  }, []);
+
+  useEffect(() => {
+    const timers = timersRef.current;
+    return () => {
+      for (const id of timers) window.clearTimeout(id);
+      timers.clear();
+    };
+  }, []);
 
   useEffect(() => {
     setTyping(true);
-    const id = window.setTimeout(() => {
+    schedule(() => {
       setTyping(false);
       setMessages([{ role: "bot", content: STAGES[0].msg }]);
     }, 900);
-    return () => window.clearTimeout(id);
-  }, []);
+  }, [schedule]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -120,14 +138,14 @@ export function NewEstimate({ onSave }: NewEstimateProps) {
     if (next < STAGES.length) {
       setStage(next);
       setTyping(true);
-      window.setTimeout(() => {
+      schedule(() => {
         setTyping(false);
         setMessages((p) => [...p, { role: "bot", content: STAGES[next].msg }]);
         setRenderKey((k) => k + 1);
       }, 800);
     } else {
       setTyping(true);
-      window.setTimeout(() => {
+      schedule(() => {
         setTyping(false);
         const q = calcQuote({
           fenceType: ans.fenceType?.id ?? "wood_privacy",
@@ -192,7 +210,7 @@ export function NewEstimate({ onSave }: NewEstimateProps) {
               setStage(0);
               setRenderKey((k) => k + 1);
               setTyping(true);
-              window.setTimeout(() => {
+              schedule(() => {
                 setTyping(false);
                 setMessages([{ role: "bot", content: STAGES[0].msg }]);
               }, 600);

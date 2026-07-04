@@ -32,9 +32,14 @@ export function ProjectDetail({
   const revisedTotal = project.finalPrice + adjustTotal;
   const remaining = revisedTotal - project.depositPaid;
 
+  const adjLabelClean = adjLabel.trim();
+  const adjAmountNum = Number(adjAmount);
+  const adjustValid =
+    adjLabelClean !== "" && adjAmount.trim() !== "" && Number.isFinite(adjAmountNum);
+
   function addAdjustment() {
-    if (!adjLabel || !adjAmount) return;
-    onAddAdjustment(project.id, { label: adjLabel, amount: Number(adjAmount) });
+    if (!adjustValid) return;
+    onAddAdjustment(project.id, { label: adjLabelClean, amount: adjAmountNum });
     setAdjLabel("");
     setAdjAmount("");
     setShowAdjust(false);
@@ -310,6 +315,7 @@ export function ProjectDetail({
             <HoverBtn
               primary
               onClick={addAdjustment}
+              disabled={!adjustValid}
               style={{ padding: "12px 18px", textAlign: "center" }}
             >
               Add

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { fmt } from "../../lib/format";
 import { useIsMobile } from "../../lib/useIsMobile";
+import { isValidEmail } from "../../lib/validate";
 import { mono, sans, t } from "../../theme";
 import type { EstimateAnswers, Quote } from "../../types";
 import { ConfBtn } from "../atoms/ConfBtn";
@@ -43,7 +44,8 @@ export function EstimateCard({ quote, answers, onSave }: EstimateCardProps) {
   const finalPrice = quote.totalCost * (1 + margin / 100);
   const profit = finalPrice - quote.totalCost;
 
-  const materialsCoverPct = Math.round((quote.materialCost / finalPrice) * 100);
+  const materialsCoverPct =
+    finalPrice > 0 ? Math.round((quote.materialCost / finalPrice) * 100) : 0;
   const depositPct = depositMode === "materials" ? materialsCoverPct : customDepositPct;
   const depositAmt = finalPrice * (depositPct / 100);
   const balanceAmt = finalPrice - depositAmt;
@@ -51,7 +53,8 @@ export function EstimateCard({ quote, answers, onSave }: EstimateCardProps) {
   const sectionPad = isMobile ? "14px 16px" : "16px 24px";
   const headerPad = isMobile ? "16px 16px" : "20px 24px";
 
-  const sendDisabled = !clientName.trim() || !clientEmail.trim() || sent;
+  const emailInvalid = clientEmail.trim() !== "" && !isValidEmail(clientEmail);
+  const sendDisabled = !clientName.trim() || !isValidEmail(clientEmail) || sent;
 
   return (
     <div style={{ animation: "fadeSlideUp 0.5s ease" }}>
@@ -401,9 +404,10 @@ export function EstimateCard({ quote, answers, onSave }: EstimateCardProps) {
               value={clientEmail}
               onChange={(e) => setClientEmail(e.target.value)}
               placeholder="Client email"
+              type="email"
               style={{
                 background: t.bgAlt,
-                border: `1px solid ${t.border}`,
+                border: `1px solid ${emailInvalid ? t.warn : t.border}`,
                 borderRadius: 8,
                 padding: "12px 14px",
                 color: t.text,
@@ -413,13 +417,18 @@ export function EstimateCard({ quote, answers, onSave }: EstimateCardProps) {
                 minHeight: 44,
               }}
             />
+            {emailInvalid && (
+              <div style={{ color: t.warn, fontSize: 11, fontFamily: sans }}>
+                Enter a valid email address (e.g. client@example.com).
+              </div>
+            )}
             <div style={{ display: "flex", gap: 8, marginTop: 4 }}>
               <ConfBtn
                 onClick={() => {
                   setSent(true);
                   onSave?.({
-                    clientName,
-                    clientEmail,
+                    clientName: clientName.trim(),
+                    clientEmail: clientEmail.trim(),
                     finalPrice,
                     depositAmt,
                     depositPct,

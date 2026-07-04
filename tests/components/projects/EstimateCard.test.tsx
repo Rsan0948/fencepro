@@ -118,4 +118,13 @@ describe("EstimateCard", () => {
     await user.type(screen.getByPlaceholderText(/client email/i), "alice@example.com");
     expect(sendBtn).toBeEnabled();
   });
+
+  it("keeps Send disabled and shows a hint when the email is malformed", async () => {
+    const user = userEvent.setup();
+    renderCard();
+    await user.type(screen.getByPlaceholderText(/client name/i), "Alice Co");
+    await user.type(screen.getByPlaceholderText(/client email/i), "not-an-email");
+    expect(screen.getByRole("button", { name: /send estimate/i })).toBeDisabled();
+    expect(screen.getByText(/enter a valid email address/i)).toBeInTheDocument();
+  });
 });

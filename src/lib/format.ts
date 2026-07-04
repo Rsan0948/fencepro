@@ -9,8 +9,25 @@ export function fmt(n: number): string {
   });
 }
 
+// "YYYY-MM-DD" fed to `new Date()` parses as UTC midnight, which renders as
+// the previous day in any timezone west of UTC. Parse date-only strings as
+// local time instead.
+export function parseISODateLocal(s: string): Date {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(s);
+  if (m) return new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
+  return new Date(s);
+}
+
+export function todayISO(): string {
+  const d = new Date();
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+}
+
 export function fmtD(s: string): string {
-  return new Date(s).toLocaleDateString("en-US", {
+  const d = parseISODateLocal(s);
+  if (Number.isNaN(d.getTime())) return s;
+  return d.toLocaleDateString("en-US", {
     month: "short",
     day: "numeric",
     year: "numeric",

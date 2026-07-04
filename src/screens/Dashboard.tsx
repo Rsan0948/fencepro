@@ -7,7 +7,7 @@ import type { DonutSegment } from "../components/charts/DonutChart";
 import { ProjectRow } from "../components/projects/ProjectRow";
 import { DefaultsBanner } from "../components/system/DefaultsBanner";
 import { data } from "../data";
-import { fmt } from "../lib/format";
+import { fmt, parseISODateLocal } from "../lib/format";
 import { useIsMobile } from "../lib/useIsMobile";
 import { mono, sans, t } from "../theme";
 import type { Project } from "../types";
@@ -22,8 +22,11 @@ export function Dashboard({ projects, onProjectClick, onNewEstimate }: Dashboard
   const [tableExpanded, setTableExpanded] = useState(false);
   const isMobile = useIsMobile();
 
-  const currentYear = new Date().getFullYear();
-  const ytd = projects.filter((p) => new Date(p.createdAt).getFullYear() === currentYear);
+  const now = new Date();
+  const currentYear = now.getFullYear();
+  const hour = now.getHours();
+  const greeting = hour < 12 ? "GOOD MORNING" : hour < 18 ? "GOOD AFTERNOON" : "GOOD EVENING";
+  const ytd = projects.filter((p) => parseISODateLocal(p.createdAt).getFullYear() === currentYear);
 
   const totalRevenue = ytd.reduce((s, p) => s + (p.status === "paid" ? p.finalPrice : 0), 0);
   const activeRevenue = ytd
@@ -86,7 +89,7 @@ export function Dashboard({ projects, onProjectClick, onNewEstimate }: Dashboard
               marginBottom: 4,
             }}
           >
-            GOOD MORNING
+            {greeting}
           </div>
           <h1
             style={{

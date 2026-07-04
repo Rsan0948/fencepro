@@ -99,3 +99,73 @@ describe("storage", () => {
     expect(fakeStorage.getItem(KEY)).toBeNull();
   });
 });
+
+describe("storage per-project sanitization", () => {
+  it("drops entries that are not project-shaped objects", () => {
+    fakeStorage.setItem(
+      KEY,
+      JSON.stringify({ schemaVersion: 1, projects: [null, "junk", 42, { ...SEED[0] }] }),
+    );
+    const result = loadProjects(SEED);
+    expect(result.projects).toHaveLength(1);
+    expect(result.projects[0].id).toBe("seed-1");
+    expect(result.recovered).toBe(false);
+  });
+
+  it("normalizes missing adjustments/notes and non-finite numbers", () => {
+    const broken = {
+      id: "p_broken",
+      client: "Broken Co",
+      county: "Central",
+      fenceType: "wood_privacy",
+      linearFeet: 100,
+      heightFt: 6,
+      materialCost: "not-a-number",
+      laborCost: 500,
+      totalCost: 1500,
+      depositRate: 0.4,
+      depositPaid: Number.NaN,
+      finalPrice: 1800,
+      status: "bogus-status",
+      createdAt: "2026-01-01",
+      paidAt: null,
+      // adjustments and notes intentionally missing
+    };
+    fakeStorage.setItem(KEY, JSON.stringify({ schemaVersion: 1, projects: [broken] }));
+    const [p] = loadProjects(SEED).projects;
+    expect(p.adjustments).toEqual([]);
+    expect(p.notes).toBe("");
+    expect(p.materialCost).toBe(0);
+    expect(p.depositPaid).toBe(0);
+    expect(p.status).toBe("pending");
+  });
+
+  it("filters malformed adjustment entries but keeps valid ones", () => {
+    const project = {
+      ...SEED[0],
+      adjustments: [
+        { label: "Valid gate", amount: 240 },
+        { label: "NaN amount", amount: Number.NaN },
+        { amount: 100 },
+        "junk",
+      ],
+    };
+    fakeStorage.setItem(KEY, JSON.stringify({ schemaVersion: 1, projects: [project] }));
+    const [p] = loadProjects(SEED).projects;
+    expect(p.adjustments).toEqual([{ label: "Valid gate", amount: 240 }]);
+  });
+
+  it("saveProjects swallows storage failures instead of throwing", () => {
+    const throwingStorage = {
+      ...fakeStorage,
+      setItem() {
+        throw new Error("QuotaExceededError");
+      },
+    } as Storage;
+    vi.stubGlobal("localStorage", throwingStorage);
+    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+    expect(() => saveProjects(SEED)).not.toThrow();
+    expect(warnSpy).toHaveBeenCalled();
+    warnSpy.mockRestore();
+  });
+});

@@ -6,7 +6,7 @@ import { EmailPreviewModal } from "./components/system/EmailPreviewModal";
 import { Toast } from "./components/system/Toast";
 import type { ToastEntry } from "./components/system/Toast";
 import { data } from "./data";
-import { fmt } from "./lib/format";
+import { fmt, todayISO } from "./lib/format";
 import { loadProjects, saveProjects } from "./lib/storage";
 import { Dashboard } from "./screens/Dashboard";
 import { FinalInvoiceModal } from "./screens/FinalInvoiceModal";
@@ -40,6 +40,9 @@ function newInfoToastId(): string {
 }
 
 function appendToastCapped(prev: ToastEntry[], next: ToastEntry): ToastEntry[] {
+  // Idempotent by id: effects can run twice in dev (StrictMode), and
+  // duplicate ids would also collide as React keys.
+  if (prev.some((entry) => entry.id === next.id)) return prev;
   const combined = [...prev, next];
   return combined.length > TOAST_CAP ? combined.slice(combined.length - TOAST_CAP) : combined;
 }
@@ -67,7 +70,9 @@ export default function FenceProApp() {
     if (initialLoad.recovered) {
       setToasts((prev) =>
         appendToastCapped(prev, {
-          id: newInfoToastId(),
+          // Fixed id so the StrictMode double-run of this effect can't
+          // stack two copies of the same warning.
+          id: "t_info_recovered",
           kind: "info",
           title: "Saved data was unreadable",
           body: "Loaded the default projects instead.",
@@ -81,7 +86,7 @@ export default function FenceProApp() {
       const record = getMockSessionRecord(sessionId);
       if (!record) return;
       const { projectId, type } = record.input.metadata;
-      const today = new Date().toISOString().split("T")[0];
+      const today = todayISO();
       setProjects((prev) =>
         prev.map((p) => {
           if (p.id !== projectId) return p;
@@ -166,6 +171,9 @@ export default function FenceProApp() {
   function openPreview(toast: ToastEntry) {
     if (toast.kind === "email") {
       setPreviewedEmailId(toast.emailId);
+    } else {
+      // Info toasts advertise "click to dismiss" — honor it.
+      dismissToast(toast.id);
     }
   }
 
@@ -200,7 +208,7 @@ export default function FenceProApp() {
       depositPaid: 0,
       finalPrice: payload.finalPrice,
       status: "pending",
-      createdAt: new Date().toISOString().split("T")[0],
+      createdAt: todayISO(),
       paidAt: null,
       adjustments: [],
       notes: "",
@@ -238,6 +246,14 @@ export default function FenceProApp() {
       pushToast(result.id, tpl.subject, payload.clientEmail);
     } catch (err) {
       console.error("[fencepro] estimate send failed", err);
+      setToasts((prev) =>
+        appendToastCapped(prev, {
+          id: newInfoToastId(),
+          kind: "info",
+          title: "Estimate email failed to send",
+          body: "The project was saved, but no payment link was created.",
+        }),
+      );
     }
   }
 
@@ -295,6 +311,14 @@ export default function FenceProApp() {
       pushToast(result.id, tpl.subject, clientEmail);
     } catch (err) {
       console.error("[fencepro] final invoice send failed", err);
+      setToasts((prev) =>
+        appendToastCapped(prev, {
+          id: newInfoToastId(),
+          kind: "info",
+          title: "Final invoice failed to send",
+          body: "No email was queued. Try generating the invoice again.",
+        }),
+      );
     }
   }
 

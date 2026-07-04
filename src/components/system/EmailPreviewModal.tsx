@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import type { MouseEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { useIsMobile } from "../../lib/useIsMobile";
@@ -12,6 +13,16 @@ export interface EmailPreviewModalProps {
 export function EmailPreviewModal({ message, onClose }: EmailPreviewModalProps) {
   const isMobile = useIsMobile();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!message) return;
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape") onClose();
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [message, onClose]);
+
   if (!message) return null;
 
   function handleHtmlClick(e: MouseEvent<HTMLDivElement>) {
@@ -34,6 +45,7 @@ export function EmailPreviewModal({ message, onClose }: EmailPreviewModalProps) 
   return (
     <div
       onClick={onClose}
+      role="presentation"
       style={{
         position: "fixed",
         inset: 0,
@@ -47,6 +59,9 @@ export function EmailPreviewModal({ message, onClose }: EmailPreviewModalProps) 
     >
       <div
         onClick={(e) => e.stopPropagation()}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Email preview"
         style={{
           background: t.surface,
           border: `1px solid ${t.accent}`,
