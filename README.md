@@ -65,7 +65,7 @@ deploy. Mobile-responsive down to iPhone SE.
   [`docs/architecture.md`](docs/architecture.md) §Data Layer.
 - **Frontend-only by design.** React 19 + Vite + TypeScript (strict),
   persists to `localStorage` with a versioned envelope, deploys as a
-  static bundle. 56 tests covering lib + services + components +
+  static bundle. 100+ tests covering lib + services + components +
   end-to-end integration. Mobile-responsive at one breakpoint (768px)
   via a 31-line `useIsMobile()` hook. Apache 2.0.
 

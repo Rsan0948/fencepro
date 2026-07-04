@@ -134,9 +134,13 @@ type StoredEnvelope = { schemaVersion: 1; projects: Project[] };
 ```
 
 `src/lib/storage.ts` wraps the read/write with a typed envelope. Schema
-mismatches return the seed instead of throwing. `App.tsx` seeds projects
+mismatches return the seed instead of throwing, and each stored project
+is sanitized field-by-field on load (non-object entries dropped, missing
+`adjustments`/`notes` defaulted, non-finite numbers coerced to 0) so a
+hand-edited entry can't crash the dashboard. `App.tsx` seeds projects
 state from `loadProjects(data.projects)` on mount, and a `useEffect` on
-`projects` saves the envelope on every change. Bumping the schema version
+`projects` saves the envelope on every change; save failures
+(quota/private mode) log a warning instead of throwing. Bumping the schema version
 takes a one-line const change plus a migration helper if old data needs
 to be reshaped — there's no IndexedDB, no Dexie, nothing else to evict.
 

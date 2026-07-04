@@ -21,6 +21,7 @@ export function Pill({ children, active, onClick }: PillProps) {
         fontFamily: mono,
         cursor: "pointer",
         transition: "all 0.15s",
+        minHeight: 36,
       }}
     >
       {children}

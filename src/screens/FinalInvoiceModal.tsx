@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { HoverBtn } from "../components/atoms/HoverBtn";
 import { fmt } from "../lib/format";
+import { remainingBalance, revisedTotal } from "../lib/project";
 import { useIsMobile } from "../lib/useIsMobile";
 import { isValidEmail } from "../lib/validate";
 import { mono, sans, t } from "../theme";
@@ -17,9 +18,8 @@ export function FinalInvoiceModal({ project, onClose, onSend }: FinalInvoiceModa
   const [submitting, setSubmitting] = useState(false);
   const isMobile = useIsMobile();
 
-  const adjustTotal = project.adjustments.reduce((s, a) => s + a.amount, 0);
-  const revisedTotal = project.finalPrice + adjustTotal;
-  const remaining = revisedTotal - project.depositPaid;
+  const revised = revisedTotal(project);
+  const remaining = remainingBalance(project);
   const emailInvalid = clientEmail.trim() !== "" && !isValidEmail(clientEmail);
   const sendDisabled = !isValidEmail(clientEmail) || submitting;
 
@@ -130,7 +130,7 @@ export function FinalInvoiceModal({ project, onClose, onSend }: FinalInvoiceModa
 
         {(
           [
-            { label: "Total Project Value", val: fmt(revisedTotal), accent: false },
+            { label: "Total Project Value", val: fmt(revised), accent: false },
             { label: "Deposit Already Paid", val: "-" + fmt(project.depositPaid), accent: false },
             { label: "Remaining Balance", val: fmt(remaining), accent: true },
           ] as Array<{ label: string; val: string; accent: boolean }>

@@ -8,6 +8,7 @@ export interface HoverBtnProps {
   primary?: boolean;
   disabled?: boolean;
   style?: CSSProperties;
+  title?: string;
 }
 
 export function HoverBtn({
@@ -16,6 +17,7 @@ export function HoverBtn({
   primary = false,
   disabled = false,
   style,
+  title,
 }: HoverBtnProps) {
   const [hover, setHover] = useState(false);
   const activeHover = hover && !disabled;
@@ -23,6 +25,7 @@ export function HoverBtn({
     <button
       onClick={disabled ? undefined : onClick}
       disabled={disabled}
+      title={title}
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
       style={{

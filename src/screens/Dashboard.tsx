@@ -7,7 +7,9 @@ import type { DonutSegment } from "../components/charts/DonutChart";
 import { ProjectRow } from "../components/projects/ProjectRow";
 import { DefaultsBanner } from "../components/system/DefaultsBanner";
 import { data } from "../data";
+import { downloadCsv, projectsToCsv } from "../lib/csv";
 import { fmt, parseISODateLocal } from "../lib/format";
+import { adjustmentsTotal, remainingBalance } from "../lib/project";
 import { useIsMobile } from "../lib/useIsMobile";
 import { mono, sans, t } from "../theme";
 import type { Project } from "../types";
@@ -35,20 +37,14 @@ export function Dashboard({ projects, onProjectClick, onNewEstimate }: Dashboard
   const pendingRevenue = ytd
     .filter((p) => p.status === "pending")
     .reduce((s, p) => s + p.finalPrice, 0);
-  const adjustmentsTotal = ytd.reduce(
-    (s, p) => s + p.adjustments.reduce((a, j) => a + j.amount, 0),
-    0,
-  );
+  const adjustmentsYtd = ytd.reduce((s, p) => s + adjustmentsTotal(p), 0);
 
   // Snapshot semantics: only deposits on still-open projects count as
   // currently held; deposits on paid projects are already inside their
   // finalPrice (totalRevenue), so adding both would double-count.
   const unpaid = ytd.filter((p) => p.status !== "paid");
   const depositsHeld = unpaid.reduce((s, p) => s + (p.depositPaid || 0), 0);
-  const outstanding = unpaid.reduce((s, p) => {
-    const adj = p.adjustments.reduce((a, j) => a + j.amount, 0);
-    return s + (p.finalPrice + adj - (p.depositPaid || 0));
-  }, 0);
+  const outstanding = unpaid.reduce((s, p) => s + remainingBalance(p), 0);
   const collected = totalRevenue + depositsHeld;
 
   const paidCount = ytd.filter((p) => p.status === "paid").length;
@@ -201,7 +197,7 @@ export function Dashboard({ projects, onProjectClick, onNewEstimate }: Dashboard
               { label: "Collected", value: collected, color: t.success },
               { label: "Outstanding", value: outstanding, color: t.warn },
               { label: "Deposits In", value: depositsHeld, color: t.info },
-              { label: "Adjustments", value: adjustmentsTotal, color: t.accent },
+              { label: "Adjustments", value: adjustmentsYtd, color: t.accent },
             ].map((s) => (
               <div
                 key={s.label}
@@ -246,24 +242,49 @@ export function Dashboard({ projects, onProjectClick, onNewEstimate }: Dashboard
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
+            flexWrap: "wrap",
+            gap: 8,
             borderBottom: `1px solid ${t.border}`,
           }}
         >
           <Label>Projects {currentYear}</Label>
-          <button
-            onClick={() => setTableExpanded((e) => !e)}
-            style={{
-              background: "transparent",
-              border: "none",
-              color: t.sub,
-              fontSize: 12,
-              fontFamily: mono,
-              cursor: "pointer",
-              letterSpacing: "0.08em",
-            }}
-          >
-            {tableExpanded ? "COLLAPSE ↑" : "EXPAND ↓"} ({ytd.length} jobs)
-          </button>
+          <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+            {ytd.length > 0 && (
+              <HoverBtn
+                onClick={() =>
+                  downloadCsv(`fencepro-projects-${currentYear}.csv`, projectsToCsv(ytd))
+                }
+                title="Download this year's projects as a spreadsheet"
+                style={{
+                  fontSize: 11,
+                  fontFamily: mono,
+                  fontWeight: 400,
+                  letterSpacing: "0.08em",
+                  padding: "6px 10px",
+                  borderRadius: 6,
+                  minHeight: 36,
+                  whiteSpace: "nowrap",
+                }}
+              >
+                EXPORT CSV
+              </HoverBtn>
+            )}
+            <button
+              onClick={() => setTableExpanded((e) => !e)}
+              style={{
+                background: "transparent",
+                border: "none",
+                color: t.sub,
+                fontSize: 12,
+                fontFamily: mono,
+                cursor: "pointer",
+                letterSpacing: "0.08em",
+                whiteSpace: "nowrap",
+              }}
+            >
+              {tableExpanded ? "COLLAPSE ↑" : "EXPAND ↓"} ({ytd.length} jobs)
+            </button>
+          </div>
         </div>
 
         {!isMobile && (

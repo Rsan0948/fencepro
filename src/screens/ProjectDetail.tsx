@@ -4,6 +4,7 @@ import { HoverBtn } from "../components/atoms/HoverBtn";
 import { Label } from "../components/atoms/Label";
 import { StatusBadge } from "../components/atoms/StatusBadge";
 import { fenceLabel, fmt, fmtD } from "../lib/format";
+import { adjustmentsTotal, remainingBalance, revisedTotal } from "../lib/project";
 import { useIsMobile } from "../lib/useIsMobile";
 import { mono, sans, t } from "../theme";
 import type { Adjustment, Project } from "../types";
@@ -13,6 +14,7 @@ export interface ProjectDetailProps {
   onBack: () => void;
   onInvoice: (project: Project) => void;
   onAddAdjustment: (projectId: string, adjustment: Adjustment) => void;
+  onUpdateNotes: (projectId: string, notes: string) => void;
   onDelete: (projectId: string) => void;
 }
 
@@ -21,16 +23,30 @@ export function ProjectDetail({
   onBack,
   onInvoice,
   onAddAdjustment,
+  onUpdateNotes,
   onDelete,
 }: ProjectDetailProps) {
   const [showAdjust, setShowAdjust] = useState(false);
   const [adjLabel, setAdjLabel] = useState("");
   const [adjAmount, setAdjAmount] = useState("");
+  // App keys this component by project.id, so a fresh project mounts a
+  // fresh instance and all per-project state (draft, adjustment form)
+  // resets without any prop-mirroring effects.
+  const [notesDraft, setNotesDraft] = useState(project.notes);
   const isMobile = useIsMobile();
 
-  const adjustTotal = project.adjustments.reduce((s, a) => s + a.amount, 0);
-  const revisedTotal = project.finalPrice + adjustTotal;
-  const remaining = revisedTotal - project.depositPaid;
+  const notesDirty = notesDraft !== project.notes;
+
+  const adjustTotal = adjustmentsTotal(project);
+  const revised = revisedTotal(project);
+  const remaining = remainingBalance(project);
+
+  // Commit on blur as well as on the explicit button: clicking ← BACK (or
+  // anywhere else) blurs the textarea first, so a typed draft is never
+  // silently lost to navigation.
+  function commitNotes() {
+    if (notesDirty) onUpdateNotes(project.id, notesDraft);
+  }
 
   const adjLabelClean = adjLabel.trim();
   const adjAmountNum = Number(adjAmount);
@@ -161,7 +177,7 @@ export function ProjectDetail({
                 val: (adjustTotal >= 0 ? "+" : "") + fmt(adjustTotal),
                 color: adjustTotal !== 0 ? t.accent : t.muted,
               },
-              { label: "Revised Total", val: fmt(revisedTotal), color: t.text },
+              { label: "Revised Total", val: fmt(revised), color: t.text },
               { label: "Deposit Collected", val: "-" + fmt(project.depositPaid), color: t.success },
               {
                 label: "Remaining Balance",
@@ -324,16 +340,58 @@ export function ProjectDetail({
         )}
       </Card>
 
-      {project.notes && (
-        <Card>
+      <Card>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            marginBottom: 8,
+            gap: 8,
+          }}
+        >
           <Label>Notes</Label>
-          <p
-            style={{ color: t.sub, fontSize: 14, fontFamily: sans, lineHeight: 1.6, marginTop: 6 }}
-          >
-            {project.notes}
-          </p>
-        </Card>
-      )}
+          {notesDirty && (
+            <HoverBtn
+              primary
+              onClick={commitNotes}
+              style={{
+                fontSize: 11,
+                fontFamily: mono,
+                fontWeight: 400,
+                letterSpacing: "0.08em",
+                padding: "6px 12px",
+                borderRadius: 6,
+                minHeight: 36,
+              }}
+            >
+              SAVE NOTES
+            </HoverBtn>
+          )}
+        </div>
+        <textarea
+          value={notesDraft}
+          onChange={(e) => setNotesDraft(e.target.value)}
+          onBlur={commitNotes}
+          placeholder="Job-site details, gate codes, scheduling constraints…"
+          rows={4}
+          aria-label="Project notes"
+          style={{
+            width: "100%",
+            background: t.bgAlt,
+            border: `1px solid ${t.border}`,
+            borderRadius: 8,
+            padding: "12px 14px",
+            color: t.sub,
+            fontSize: 14,
+            fontFamily: sans,
+            lineHeight: 1.6,
+            outline: "none",
+            resize: "vertical",
+            minHeight: 96,
+          }}
+        />
+      </Card>
     </div>
   );
 }

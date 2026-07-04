@@ -8,6 +8,13 @@ All notable changes to FencePro are documented here. Format follows
 
 ### Fixed
 
+- **CSV injection + Excel compatibility.** Exported text fields starting with `=`, `+`, `-`, `@` are neutralized with a leading apostrophe so spreadsheet apps render them as text instead of executing formulas (numeric fields pass through untouched). The blob now carries a UTF-8 BOM so Excel decodes non-ASCII names/notes correctly, and the object URL is revoked on a delay so browsers that start the download asynchronously don't lose it.
+- **Unsaved notes can no longer be lost to navigation.** The notes textarea commits a dirty draft on blur (clicking ← BACK blurs first), in addition to the explicit SAVE NOTES button. `ProjectDetail` is keyed by project id so all per-project form state resets cleanly on project switch; the prop-mirroring draft-reset effect is gone.
+- **MockCheckout can't get stuck on "Processing…".** `handlePay` resets on failure instead of leaving the Pay button disabled forever, and the ← Back link is disabled while a payment is in flight, matching the Escape guard.
+- **One source of truth for billing math.** `adjustmentsTotal` / `revisedTotal` / `remainingBalance` moved to `src/lib/project.ts`; the detail screen, invoice modal, dashboard, project rows, and CSV export all call the same helpers instead of six hand-rolled copies of the formula.
+- **Button dedup.** SAVE NOTES and EXPORT CSV now use the shared `HoverBtn` atom (which gained a `title` prop) instead of bespoke inline styles, restoring hover feedback and one place to restyle.
+- Stale README/architecture claims refreshed (test count, storage sanitization behavior); shared `makeProject` test fixture replaces three per-suite copies; `Pill` and small action buttons meet the 36px touch-target floor; the dashboard projects header wraps cleanly on phones.
+
 - **Timezone-safe dates.** Date-only strings (`createdAt`, `paidAt`) were parsed with `new Date("YYYY-MM-DD")`, which reads as UTC midnight and renders as the _previous_ day in any timezone west of UTC — so US users saw every project date off by one, and the dashboard's YTD filter could push a Jan 1 project into the prior year. New `parseISODateLocal()` parses date-only strings as local time (used by `fmtD` and the YTD filter), and new `todayISO()` stamps `createdAt`/`paidAt` with the local calendar date instead of the UTC one. `fmtD` also returns the raw string instead of "Invalid Date" for unparseable input.
 - **Info toasts now dismiss on click.** Their subtitle says "click to dismiss", but clicking the card body was a no-op (only the × worked).
 - **EmailPreviewModal closes on Escape** and carries proper dialog semantics (`role="dialog"`, `aria-modal`), matching FinalInvoiceModal and MockCheckout.
@@ -24,6 +31,8 @@ All notable changes to FencePro are documented here. Format follows
 
 ### Added
 
+- **Editable project notes.** The `notes` field existed in the data model but had no edit surface — new projects could never get notes. ProjectDetail now renders an always-present Notes card with a textarea; a SAVE NOTES button appears when the draft differs from the saved value and persists through the shared projects state (and localStorage).
+- **CSV export.** An EXPORT CSV button on the dashboard's projects card downloads the current year's projects as an RFC 4180-quoted spreadsheet (`fencepro-projects-<year>.csv`) with per-project financials, adjustments/revised totals, status, dates, and notes. New `src/lib/csv.ts`.
 - **Keyboard-accessible project rows.** Dashboard rows are focusable (`role="button"`, `tabIndex=0`), activate on Enter/Space, and show the hover highlight on keyboard focus.
 - **Time-aware dashboard greeting** — GOOD MORNING / AFTERNOON / EVENING based on the local hour instead of a hardcoded GOOD MORNING.
 - `src/lib/validate.ts` with `isValidEmail()`; new tests covering email validation, local date parsing, and storage sanitization.

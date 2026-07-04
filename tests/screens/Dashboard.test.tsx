@@ -4,31 +4,7 @@ import { MemoryRouter } from "react-router-dom";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { Dashboard } from "../../src/screens/Dashboard";
 import type { Project } from "../../src/types";
-
-const CURRENT_YEAR = new Date().getFullYear();
-
-function makeProject(overrides: Partial<Project> = {}): Project {
-  const base: Project = {
-    id: "p_test",
-    client: "Test Client",
-    county: "Central",
-    fenceType: "wood_privacy",
-    linearFeet: 100,
-    heightFt: 6,
-    materialCost: 1000,
-    laborCost: 500,
-    totalCost: 1500,
-    depositRate: 0.4,
-    depositPaid: 0,
-    finalPrice: 2000,
-    status: "pending",
-    createdAt: `${CURRENT_YEAR}-02-15`,
-    paidAt: null,
-    adjustments: [],
-    notes: "",
-  };
-  return { ...base, ...overrides };
-}
+import { makeProject } from "../helpers/projects";
 
 function renderDashboard(
   projects: Project[],
@@ -126,6 +102,14 @@ describe("Dashboard", () => {
   it("renders the DefaultsBanner above the dashboard header", () => {
     renderDashboard([]);
     expect(screen.getByText("DEFAULTS")).toBeInTheDocument();
+  });
+
+  it("shows the CSV export button only when there are YTD projects", () => {
+    const { unmount } = renderDashboard([makeProject()]);
+    expect(screen.getByRole("button", { name: /export csv/i })).toBeInTheDocument();
+    unmount();
+    renderDashboard([]);
+    expect(screen.queryByRole("button", { name: /export csv/i })).not.toBeInTheDocument();
   });
 
   it("hides the desktop column-header strip on mobile", () => {

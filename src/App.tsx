@@ -7,6 +7,7 @@ import { Toast } from "./components/system/Toast";
 import type { ToastEntry } from "./components/system/Toast";
 import { data } from "./data";
 import { fmt, todayISO } from "./lib/format";
+import { remainingBalance, revisedTotal } from "./lib/project";
 import { loadProjects, saveProjects } from "./lib/storage";
 import { Dashboard } from "./screens/Dashboard";
 import { FinalInvoiceModal } from "./screens/FinalInvoiceModal";
@@ -265,6 +266,10 @@ export default function FenceProApp() {
     );
   }
 
+  function handleUpdateNotes(projectId: string, notes: string) {
+    setProjects((prev) => prev.map((p) => (p.id === projectId ? { ...p, notes } : p)));
+  }
+
   function handleDeleteProject(projectId: string) {
     setProjects((prev) => prev.filter((p) => p.id !== projectId));
     if (selectedProjectId === projectId) setSelectedProjectId(null);
@@ -274,9 +279,8 @@ export default function FenceProApp() {
   }
 
   async function handleSendInvoice(project: Project, clientEmail: string) {
-    const adjustTotal = project.adjustments.reduce((s, a) => s + a.amount, 0);
-    const revisedTotal = project.finalPrice + adjustTotal;
-    const remaining = revisedTotal - project.depositPaid;
+    const revised = revisedTotal(project);
+    const remaining = remainingBalance(project);
     try {
       const session = await paymentProvider.createCheckoutSession({
         amount: remaining,
@@ -295,7 +299,7 @@ export default function FenceProApp() {
       const tpl = renderFinalInvoice({
         clientName: project.client,
         companyName: data.company.name,
-        totalAmount: fmt(revisedTotal),
+        totalAmount: fmt(revised),
         depositPaid: fmt(project.depositPaid),
         remainingAmount: fmt(remaining),
         checkoutUrl: buildAbsoluteUrl(session.url),
@@ -359,6 +363,7 @@ export default function FenceProApp() {
         {screen === "estimate" && <NewEstimate onSave={handleSaveEstimate} />}
         {screen === "detail" && selectedProject && (
           <ProjectDetail
+            key={selectedProject.id}
             project={selectedProject}
             onBack={() => {
               setScreen("dashboard");
@@ -366,6 +371,7 @@ export default function FenceProApp() {
             }}
             onInvoice={(p) => setInvoiceProjectId(p.id)}
             onAddAdjustment={handleAddAdjustment}
+            onUpdateNotes={handleUpdateNotes}
             onDelete={handleDeleteProject}
           />
         )}

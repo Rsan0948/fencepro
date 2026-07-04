@@ -22,11 +22,13 @@ export function MockCheckout() {
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
-      if (e.key === "Escape") navigate("/");
+      // Don't let Escape abandon the page mid-payment; the webhook fires on
+      // completion and the success path navigates home itself.
+      if (e.key === "Escape" && !paying) navigate("/");
     }
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [navigate]);
+  }, [navigate, paying]);
 
   if (!record) {
     return (
@@ -149,8 +151,15 @@ export function MockCheckout() {
 
   async function handlePay() {
     setPaying(true);
-    await markSessionPaid(sessionId);
-    navigate("/");
+    try {
+      await markSessionPaid(sessionId);
+      navigate("/");
+    } catch (err) {
+      // Re-enable Pay (and the Escape/back exits) instead of leaving the
+      // page stuck on "Processing…" forever.
+      console.error("[fencepro] mock payment failed", err);
+      setPaying(false);
+    }
   }
 
   return (
@@ -266,12 +275,14 @@ export function MockCheckout() {
 
         <button
           onClick={() => navigate("/")}
+          disabled={paying}
           style={{
             background: "transparent",
             border: "none",
             color: MUTED,
             fontSize: 13,
-            cursor: "pointer",
+            cursor: paying ? "not-allowed" : "pointer",
+            opacity: paying ? 0.5 : 1,
             display: "block",
             margin: "18px auto 0",
             padding: "6px 12px",

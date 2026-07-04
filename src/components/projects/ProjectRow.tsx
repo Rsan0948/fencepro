@@ -2,6 +2,7 @@ import { useState } from "react";
 import type { KeyboardEvent } from "react";
 import { Link } from "react-router-dom";
 import { fenceLabel, fmt, fmtD } from "../../lib/format";
+import { revisedTotal } from "../../lib/project";
 import { useIsMobile } from "../../lib/useIsMobile";
 import { mono, sans, t } from "../../theme";
 import type { Project } from "../../types";
@@ -16,7 +17,7 @@ export interface ProjectRowProps {
 export function ProjectRow({ project, onClick, last }: ProjectRowProps) {
   const [hov, setHov] = useState(false);
   const isMobile = useIsMobile();
-  const total = project.finalPrice + project.adjustments.reduce((s, a) => s + a.amount, 0);
+  const total = revisedTotal(project);
 
   function handleKeyDown(e: KeyboardEvent<HTMLDivElement>) {
     if (e.key === "Enter" || e.key === " ") {
