@@ -73,7 +73,11 @@ export class MockStripeProvider implements PaymentProvider {
     record.amountPaid = record.input.amount;
     record.paidAt = new Date().toISOString();
     for (const handler of this.webhookHandlers) {
-      handler(id);
+      try {
+        handler(id);
+      } catch (err) {
+        console.error('[mock-stripe] webhook handler error for session', id, err);
+      }
     }
   }
 
