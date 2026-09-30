@@ -76,7 +76,7 @@ export class MockStripeProvider implements PaymentProvider {
       try {
         handler(id);
       } catch (err) {
-        console.error('[mock-stripe] webhook handler error for session', id, err);
+        console.error("[mock-stripe] webhook handler error for session", id, err);
       }
     }
   }
