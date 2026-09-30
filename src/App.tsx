@@ -216,6 +216,7 @@ export default function FenceProApp() {
     };
     setProjects((prev) => [newProject, ...prev]);
 
+    let sessionUrl: string;
     try {
       const session = await paymentProvider.createCheckoutSession({
         amount: payload.depositAmt,
@@ -226,15 +227,30 @@ export default function FenceProApp() {
         successUrl: buildAbsoluteUrl("/"),
         cancelUrl: buildAbsoluteUrl("/"),
       });
+      sessionUrl = session.url;
       setProjects((prev) =>
         prev.map((p) => (p.id === projectId ? { ...p, checkoutUrl: session.url } : p)),
       );
+    } catch (err) {
+      console.error("[fencepro] checkout session creation failed", err);
+      setToasts((prev) =>
+        appendToastCapped(prev, {
+          id: newInfoToastId(),
+          kind: "info",
+          title: "Payment link creation failed",
+          body: "The project was saved, but no payment link was created.",
+        }),
+      );
+      return;
+    }
+
+    try {
       const tpl = renderEstimateSent({
         clientName: payload.clientName,
         companyName: data.company.name,
         totalAmount: fmt(payload.finalPrice),
         depositAmount: fmt(payload.depositAmt),
-        checkoutUrl: buildAbsoluteUrl(session.url),
+        checkoutUrl: buildAbsoluteUrl(sessionUrl),
       });
       const result = await emailProvider.send({
         to: payload.clientEmail,
@@ -246,13 +262,13 @@ export default function FenceProApp() {
       });
       pushToast(result.id, tpl.subject, payload.clientEmail);
     } catch (err) {
-      console.error("[fencepro] estimate send failed", err);
+      console.error("[fencepro] estimate email send failed", err);
       setToasts((prev) =>
         appendToastCapped(prev, {
           id: newInfoToastId(),
           kind: "info",
           title: "Estimate email failed to send",
-          body: "The project was saved, but no payment link was created.",
+          body: "The payment link was created, but the email could not be sent. You can find the link on the project page.",
         }),
       );
     }
